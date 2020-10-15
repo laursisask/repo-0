@@ -7,11 +7,11 @@ description: Extend Adobe XD by creating plugins and cloud integrations
 
 ![Creative Cloud banner](images/cc-hero.png)
 
-# Extend Adobe XD with plugins and integrations
+# Supercharge design with XD plugins and integrations
 
 ![XD icon](images/icons/xd-icon.png)
 
-Adobe XD's powerful API platform lets developers and users extend XD within the app, or in the cloud. Automate complex tasks, modify and generate document contents, integrate with external services, and more. <br /><br /> Join a world-wide community of developers and power-users, and supercharge the future of design.
+Extend Adobe XD within the app, or in the cloud. Automate complex tasks, generate document contents, integrate with services, and more. Join a world-wide community of developers and power-users who are changing the future of design with XD.
 
 - [See what's possible](http://adobexdplatform.com)
 
@@ -19,7 +19,13 @@ Adobe XD's powerful API platform lets developers and users extend XD within the 
 
 ### Push the boundaries of experience design with UXP Plugin APIs
 
-Add new features to Adobe XD, automate workflows, connect XD to external services, create plugin UI with native controls, and more. All on UXP—Adobe's quick, modern HTML, CSS, and JavaScript engine—[available in Adobe XD](https://adobexdplatform.com/plugin-docs/).
+Add new features to Adobe XD, automate workflows, connect to external services, create plugin UI with native controls, and more. All on UXP—Adobe's quick, modern HTML, CSS, and JavaScript engine—[available in Adobe XD](https://adobexdplatform.com/plugin-docs/).
+
+<AnnouncementBlock slots="heading, button" theme="light" />
+
+Create your own UXP Plugin for XD today
+
+[Visit the UXP Plugin API docs](https://adobexdplatform.com/plugin-docs/)
 
 <TextBlock slots="image, heading, text, links" width="33%" theme="light" isCentered />
 
@@ -56,6 +62,12 @@ On-demand human insights platform to test prototypes and get feedback from real 
 ### Collaborate better with XD Cloud Content APIs
 
 With the [XD Cloud Content APIs](https://adobexdplatform.com/cloud-content-api-docs/), you can bring design work created in XD directly to your product or service.
+
+<AnnouncementBlock slots="heading, button" theme="light" />
+
+Integrate XD services into your app or service
+
+[Visit the XD Cloud Content API docs](https://adobexdplatform.com/cloud-content-api-docs/)
 
 <TextBlock slots="image, heading, text, links" width="33%" theme="light" isCentered />
 
