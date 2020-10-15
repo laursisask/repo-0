@@ -17,7 +17,7 @@ Extend Adobe XD within the app, or in the cloud. Automate complex tasks, generat
 
 <TitleBlock slots="heading, text" theme="light" />
 
-### Push the boundaries of experience design with UXP Plugin APIs
+### Push the boundaries of experience design with the UXP Plugin API
 
 Add new features to Adobe XD, automate workflows, connect to external services, create plugin UI with native controls, and more. All on UXP—Adobe's quick, modern HTML, CSS, and JavaScript engine—[available in Adobe XD](https://adobexdplatform.com/plugin-docs/).
 
@@ -59,13 +59,13 @@ On-demand human insights platform to test prototypes and get feedback from real 
 
 <TitleBlock slots="heading, text" theme="light" />
 
-### Collaborate better with XD Cloud Content APIs
+### Collaborate better with the XD Cloud Content API
 
-With the [XD Cloud Content APIs](https://adobexdplatform.com/cloud-content-api-docs/), you can bring design work created in XD directly to your product or service.
+With the [XD Cloud Content API](https://adobexdplatform.com/cloud-content-api-docs/), you can bring design work created in XD directly to your product or service.
 
 <AnnouncementBlock slots="heading, button" theme="light" />
 
-Integrate XD services into your app or service
+Integrate XD services into your applications
 
 [Visit the XD Cloud Content API docs](https://adobexdplatform.com/cloud-content-api-docs/)
 
