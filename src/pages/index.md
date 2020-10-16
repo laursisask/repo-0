@@ -7,7 +7,7 @@ description: Extend Adobe XD by creating plugins and cloud integrations
 
 ![Creative Cloud banner](images/cc-hero.png)
 
-# Supercharge design with XD plugins and integrations
+# Supercharge design with XD
 
 ![XD icon](images/icons/xd-icon.png)
 
