@@ -13,21 +13,16 @@ description: Extend Adobe XD by creating plugins and cloud integrations
 
 Extend Adobe XD within the app, or in the cloud. Automate complex tasks, generate document contents, integrate with services, and more. Join a world-wide community of developers and power-users who are changing the future of design with XD.
 
-- [See what's possible](http://adobexdplatform.com)
+- [Create a plugin](https://adobexdplatform.com/plugin-docs/)
+- [Integrate cloud content](https://adobexdplatform.com/cloud-content-api-docs/)
 
-<TitleBlock slots="heading, text" theme="light" />
+<TitleBlock slots="heading, text" theme="dark" />
 
 ### Push the boundaries of experience design with the UXP Plugin API
 
 Add new features to Adobe XD, automate workflows, connect to external services, create plugin UI with native controls, and more. All on UXP—Adobe's quick, modern HTML, CSS, and JavaScript engine—[available in Adobe XD](https://adobexdplatform.com/plugin-docs/).
 
-<AnnouncementBlock slots="heading, button" theme="light" />
-
-Create your own UXP Plugin for XD today
-
-[Visit the UXP Plugin API docs](https://adobexdplatform.com/plugin-docs/)
-
-<TextBlock slots="image, heading, text, links" width="33%" theme="light" isCentered />
+<TextBlock slots="image, heading, text, links" width="33%" theme="dark" isCentered />
 
 ![Overflow logo](images/overflow.png)
 
@@ -37,7 +32,7 @@ Empowers designers to design, present, and share beautiful user flow diagrams th
 
 - [Try it in XD](https://adobe.com/go/xd_plugins_discover_plugin?pluginId=232cee78)
 
-<TextBlock slots="image, heading, text, links" width="33%" theme="light" isCentered />
+<TextBlock slots="image, heading, text, links" width="33%" theme="dark" isCentered />
 
 ![Stark logo](images/stark.png)
 
@@ -47,7 +42,7 @@ Helps you design and build products that are accessible, ethical, and inclusive.
 
 - [Try it in XD](https://adobe.com/go/xd_plugins_discover_plugin?pluginId=6cbf275e)
 
-<TextBlock slots="image, heading, text, links" width="33%" theme="light" isCentered />
+<TextBlock slots="image, heading, text, links" width="33%" theme="dark" isCentered />
 
 ![Slack logo](images/user-testing.png)
 
@@ -57,17 +52,17 @@ On-demand human insights platform to test prototypes and get feedback from real 
 
 - [Try it in XD](https://adobe.com/go/xd_plugins_discover_plugin?pluginId=713b61ec)
 
+<AnnouncementBlock slots="heading, button" theme="dark" />
+
+Create your own UXP Plugin for XD today
+
+[Visit the UXP Plugin API docs](https://adobexdplatform.com/plugin-docs/)
+
 <TitleBlock slots="heading, text" theme="light" />
 
 ### Collaborate better with the XD Cloud Content API
 
 With the [XD Cloud Content API](https://adobexdplatform.com/cloud-content-api-docs/), you can bring design work created in XD directly to your product or service.
-
-<AnnouncementBlock slots="heading, button" theme="light" />
-
-Integrate XD services into your applications
-
-[Visit the XD Cloud Content API docs](https://adobexdplatform.com/cloud-content-api-docs/)
 
 <TextBlock slots="image, heading, text, links" width="33%" theme="light" isCentered />
 
@@ -85,7 +80,7 @@ Easily share Creative Cloud assets and files, and get comment notifications on y
 
 ### JIRA Cloud
 
-Make designer to developer handoffs easy. Find the latest designs and specs and get thumbnail previews and asset info.
+Designer-developer handoff made easy. Find the latest designs & specs. Get thumbnail previews & asset info.
 
 - [Learn more](https://blog.adobe.com/en/publish/2019/03/12/adobe-xd-for-jira-cloud-streamline-design-to-development-workflows.html)
 
@@ -98,6 +93,12 @@ Make designer to developer handoffs easy. Find the latest designs and specs and 
 Instantly share Creative Cloud files, designs, specs, and notifications all in real time.
 
 - [Learn more](https://slack.com/apps/AQRRGUV24-adobe-xd)
+
+<AnnouncementBlock slots="heading, button" theme="light" />
+
+Integrate XD services into your applications
+
+[Visit the XD Cloud Content API docs](https://adobexdplatform.com/cloud-content-api-docs/)
 
 <TextBlock slots="video, icons, heading, text, buttons" theme="dark" />
 
