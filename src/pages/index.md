@@ -16,11 +16,27 @@ Extend Adobe XD within the app, or in the cloud. Automate complex tasks, generat
 - [Create a plugin](https://adobexdplatform.com/plugin-docs/)
 - [Integrate cloud content](https://adobexdplatform.com/cloud-content-api-docs/)
 
+<AnnouncementBlock slots="heading, text, button" theme="light" />
+
+### Connect with our community
+
+Ask questions, offer help, and inspire each other with what you create.
+
+[Join the Creative Cloud Developer Forums](https://forums.creativeclouddeveloper.com)
+
 <TitleBlock slots="heading, text" theme="dark" />
 
 ### Push the boundaries of experience design with the UXP Plugin API
 
 Add new features to Adobe XD, automate workflows, connect to external services, create plugin UI with native controls, and more. All on UXP—Adobe's quick, modern HTML, CSS, and JavaScript engine—[available in Adobe XD](https://adobexdplatform.com/plugin-docs/).
+
+<AnnouncementBlock slots="heading, text, button" theme="dark" isCentered />
+
+### Create your own UXP Plugin for XD
+
+Learn from quick starts, tutorials, sample code, and more. Everything you need to build an XD plugin is here.
+
+[See the UXP Plugin API docs](https://adobexdplatform.com/plugin-docs/)
 
 <TextBlock slots="image, heading, text, links" width="33%" theme="dark" isCentered />
 
@@ -52,17 +68,19 @@ On-demand human insights platform to test prototypes and get feedback from real 
 
 - [Try it in XD](https://adobe.com/go/xd_plugins_discover_plugin?pluginId=713b61ec)
 
-<AnnouncementBlock slots="heading, button" theme="dark" />
-
-Create your own UXP Plugin for XD today
-
-[Visit the UXP Plugin API docs](https://adobexdplatform.com/plugin-docs/)
-
 <TitleBlock slots="heading, text" theme="light" />
 
 ### Collaborate better with the XD Cloud Content API
 
 With the [XD Cloud Content API](https://adobexdplatform.com/cloud-content-api-docs/), you can bring design work created in XD directly to your product or service.
+
+<AnnouncementBlock slots="heading, text, button" theme="light" isCentered />
+
+### Integrate with XD services
+
+Learn how to get your Client ID and start building with our documentation.
+
+[Visit the XD Cloud Content API docs](https://adobexdplatform.com/cloud-content-api-docs/)
 
 <TextBlock slots="image, heading, text, links" width="33%" theme="light" isCentered />
 
@@ -93,12 +111,6 @@ Designer-developer handoff made easy. Find the latest designs & specs. Get thumb
 Instantly share Creative Cloud files, designs, specs, and notifications all in real time.
 
 - [Learn more](https://slack.com/apps/AQRRGUV24-adobe-xd)
-
-<AnnouncementBlock slots="heading, button" theme="light" />
-
-Integrate XD services into your applications
-
-[Visit the XD Cloud Content API docs](https://adobexdplatform.com/cloud-content-api-docs/)
 
 <TextBlock slots="video, icons, heading, text, buttons" theme="dark" />
 
