@@ -13,7 +13,7 @@ description: Extend Adobe XD by creating plugins and cloud integrations
 
 Extend Adobe XD within the app, or in the cloud. Automate complex tasks, generate document contents, integrate with services, and more. Join a world-wide community of developers and power-users who are changing the future of design with XD.
 
-- [Create a plugin](https://adobexdplatform.com/plugin-docs/)
+- [Create a plugin](uxp)
 - [Integrate cloud content](https://adobexdplatform.com/cloud-content-api-docs/)
 
 <AnnouncementBlock slots="heading, text, button" theme="light" />
@@ -28,7 +28,7 @@ Ask questions, offer help, and inspire each other with what you create.
 
 ### Push the boundaries of experience design with the UXP Plugin API
 
-Add new features to Adobe XD, automate workflows, connect to external services, create plugin UI with native controls, and more. All on UXP—Adobe's quick, modern HTML, CSS, and JavaScript engine—[available in Adobe XD](https://adobexdplatform.com/plugin-docs/).
+Add new features to Adobe XD, automate workflows, connect to external services, create plugin UI with native controls, and more. All on UXP—Adobe's quick, modern HTML, CSS, and JavaScript engine—[available in Adobe XD](uxp).
 
 <AnnouncementBlock slots="heading, text, button" theme="dark" isCentered />
 
@@ -36,7 +36,7 @@ Add new features to Adobe XD, automate workflows, connect to external services, 
 
 Learn from quick starts, tutorials, sample code, and more. Everything you need to build an XD plugin is here.
 
-[See the UXP Plugin API docs](https://adobexdplatform.com/plugin-docs/)
+[See the UXP Plugin API docs](uxp)
 
 <TextBlock slots="image, heading, text, links" width="33%" theme="dark" isCentered />
 
