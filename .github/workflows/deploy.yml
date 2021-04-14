@@ -156,7 +156,7 @@ jobs:
           source: 'public'
           target: ${{ needs.set-state.outputs.path_prefix }}
           connection-string: ${{ secrets.AIO_AZURE_PROD_CONNECTION_STRING }}
-          remove-existing-files: 'true'
+          remove-existing-files: 'false'
       - name: Purge Fastly Cache
         uses: icaraps/gatsby-fastly-purge-action@master
         with:
