@@ -5,11 +5,11 @@ description: Extend Adobe XD by creating plugins and cloud integrations
 
 <Hero slots="image, heading, icon, text, buttons" variant="halfwidth" />
 
-![Creative Cloud banner](images/cc-hero.png)
+![Creative Cloud banner](https://adobe.io/shared/images/cc-hero.png)
 
 # Supercharge design with XD
 
-![XD icon](images/icons/xd-icon.png)
+![XD icon](https://adobe.io/shared/icons/xd_appicon_64.svg)
 
 Extend Adobe XD within the app, or in the cloud. Automate complex tasks, generate document contents, integrate with services, and more. Join a world-wide community of developers and power-users who are changing the future of design with XD.
 
@@ -116,7 +116,7 @@ Instantly share Creative Cloud files, designs, specs, and notifications all in r
 
 [Adobe XD for Jira Integration](https://www.youtube.com/watch?v=bEIbaZ8DtcY)
 
-- ![Adobe](images/adobe.png)
+- ![Adobe](https://adobe.io/shared/images/adobe.png)
 - ![Microsoft](images/msft.png)
 
 ### Adobe XD + Jira Software Cloud
@@ -127,7 +127,7 @@ The Adobe XD and Jira Software Cloud integration uses the XD Cloud Content APIs 
 
 <SummaryBlock slots="image, heading, text, buttons" background="rgb(9, 90, 186)" />
 
-![CC banner](images/cc-banner.png)
+![CC banner](https://adobe.io/shared/images/cc-banner.png)
 
 ## Get the latest news for Creative Cloud Developers
 
