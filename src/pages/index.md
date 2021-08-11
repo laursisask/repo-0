@@ -1,4 +1,9 @@
 ---
+keywords:
+  - Creative Cloud
+  - API Documentation
+  - UXP
+  - Plugin
 title: Adobe XD APIs for developers and scripters
 description: Extend Adobe XD by creating plugins and cloud integrations
 ---
