@@ -19,7 +19,6 @@ description: Extend Adobe XD by creating plugins and cloud integrations
 Extend Adobe XD within the app, or in the cloud. Automate complex tasks, generate document contents, integrate with services, and more. Join a world-wide community of developers and power-users who are changing the future of design with XD.
 
 - [Create a plugin](uxp)
-- [Integrate cloud content](https://adobexdplatform.com/cloud-content-api-docs/)
 
 <AnnouncementBlock slots="heading, text, button" theme="light" />
 
