@@ -23,6 +23,7 @@ import (
 )
 
 func TestClusterValidate(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		Name         string
 		Cluster      Cluster
@@ -37,11 +38,188 @@ func TestClusterValidate(t *testing.T) {
 			}(),
 		},
 		{
+			Name: "multiple valid nodes",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Nodes = append(c.Nodes, newDefaultedNode(WorkerRole), newDefaultedNode(WorkerRole))
+				return c
+			}(),
+		},
+		{
+			Name: "default IPv6",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				c.Networking.IPFamily = IPv6Family
+				SetDefaultsCluster(&c)
+				return c
+			}(),
+		},
+		{
 			Name: "bogus podSubnet",
 			Cluster: func() Cluster {
 				c := Cluster{}
 				SetDefaultsCluster(&c)
 				c.Networking.PodSubnet = "aa"
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			Name: "bogus serviceSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.ServiceSubnet = "aa"
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			Name: "bogus apiServerPort",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.APIServerPort = 9999999
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			Name: "bogus kubeProxyMode",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.KubeProxyMode = "notiptables"
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			Name: "bogus serviceSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.ServiceSubnet = "aa"
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			Name: "invalid number of podSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "192.168.0.2/24,2.2.2.0/24"
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			Name: "valid dual stack podSubnet and serviceSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "192.168.0.2/24,fd00:1::/25"
+				c.Networking.ServiceSubnet = "192.168.0.2/24,fd00:1::/25"
+				c.Networking.IPFamily = DualStackFamily
+				return c
+			}(),
+			ExpectErrors: 0,
+		},
+		{
+			Name: "invalid dual stack podSubnet and multiple serviceSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "192.168.0.2/24,fd00:1::/25"
+				c.Networking.ServiceSubnet = "192.168.0.2/24,fd00:1::/25,10.0.0.0/16"
+				c.Networking.IPFamily = DualStackFamily
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			Name: "valid dual stack podSubnet and single stack serviceSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "192.168.0.2/24,fd00:1::/25"
+				c.Networking.ServiceSubnet = "192.168.0.2/24"
+				c.Networking.IPFamily = DualStackFamily
+				return c
+			}(),
+			ExpectErrors: 0,
+		},
+		{
+			Name: "valid dual stack serviceSubnet and single stack podSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "192.168.0.2/24"
+				c.Networking.ServiceSubnet = "192.168.0.2/24,fd00:1::/25"
+				c.Networking.IPFamily = DualStackFamily
+				return c
+			}(),
+			ExpectErrors: 0,
+		},
+
+		{
+			Name: "bad dual stack podSubnet and serviceSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "192.168.0.2/24,2.2.2.0/25"
+				c.Networking.ServiceSubnet = "192.168.0.2/24,2.2.2.0/25"
+				c.Networking.IPFamily = DualStackFamily
+				return c
+			}(),
+			ExpectErrors: 2,
+		},
+		{
+			Name: "ipv6 family and ipv4 podSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "192.168.0.2/24"
+				c.Networking.ServiceSubnet = "192.168.0.2/24"
+				c.Networking.IPFamily = IPv6Family
+				return c
+			}(),
+			ExpectErrors: 2,
+		},
+		{
+			Name: "ipv4 family and ipv6 podSubnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = "fd00:1::/25"
+				c.Networking.ServiceSubnet = "fd00:1::/25"
+				c.Networking.IPFamily = IPv4Family
+				return c
+			}(),
+			ExpectErrors: 2,
+		},
+		{
+			// This test validates the empty podsubnet check. It should never happen
+			// in real world since defaulting is happening before the validation step.
+			Name: "no pod subnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.PodSubnet = ""
+				return c
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			// This test validates the empty servicesubnet check. It should never happen
+			// in real world since defaulting is happening before the validation step.
+			Name: "no service subnet",
+			Cluster: func() Cluster {
+				c := Cluster{}
+				SetDefaultsCluster(&c)
+				c.Networking.ServiceSubnet = ""
 				return c
 			}(),
 			ExpectErrors: 1,
@@ -96,16 +274,17 @@ func TestClusterValidate(t *testing.T) {
 	}
 }
 
-// TODO(fabriziopandini): ideally this should use scheme.Default, but this creates a circular dependency
-// So the current solution is to mimic defaulting for the validation test
 func newDefaultedNode(role NodeRole) Node {
-	return Node{
+	n := Node{
 		Role:  role,
 		Image: "myImage:latest",
 	}
+	SetDefaultsNode(&n)
+	return n
 }
 
 func TestNodeValidate(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		TestName     string
 		Node         Node
@@ -148,6 +327,34 @@ func TestNodeValidate(t *testing.T) {
 			}(),
 			ExpectErrors: 1,
 		},
+		{
+			TestName: "Invalid ContainerPort",
+			Node: func() Node {
+				cfg := newDefaultedNode(ControlPlaneRole)
+				cfg.ExtraPortMappings = []PortMapping{
+					{
+						ContainerPort: 999999999,
+						HostPort:      8080,
+					},
+				}
+				return cfg
+			}(),
+			ExpectErrors: 1,
+		},
+		{
+			TestName: "Invalid HostPort",
+			Node: func() Node {
+				cfg := newDefaultedNode(ControlPlaneRole)
+				cfg.ExtraPortMappings = []PortMapping{
+					{
+						ContainerPort: 8080,
+						HostPort:      999999999,
+					},
+				}
+				return cfg
+			}(),
+			ExpectErrors: 1,
+		},
 	}
 
 	for _, tc := range cases {
@@ -171,6 +378,52 @@ func TestNodeValidate(t *testing.T) {
 			// we expect a certain number of errors
 			if len(errs) != tc.ExpectErrors {
 				t.Errorf("expected %d errors but got len(%v) = %d", tc.ExpectErrors, errs, len(errs))
+			}
+		})
+	}
+}
+
+func TestPortValidate(t *testing.T) {
+	cases := []struct {
+		TestName    string
+		Port        int32
+		ExpectError string
+	}{
+		{
+			TestName:    "-1 port",
+			Port:        -1,
+			ExpectError: "",
+		},
+		{
+			TestName:    "valid port",
+			Port:        10,
+			ExpectError: "",
+		},
+		{
+			TestName:    "negative port",
+			Port:        -2,
+			ExpectError: "invalid port number: -2",
+		},
+		{
+			TestName:    "extra port",
+			Port:        65536,
+			ExpectError: "invalid port number: 65536",
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc //capture loop variable
+		t.Run(tc.TestName, func(t *testing.T) {
+			t.Parallel()
+			err := validatePort(tc.Port)
+			// the error can be:
+			// - nil, in which case we should expect no errors or fail
+			if err == nil && len(tc.ExpectError) > 0 {
+				t.Errorf("Test failed, unexpected error: %s", tc.ExpectError)
+			}
+
+			if err != nil && err.Error() != tc.ExpectError {
+				t.Errorf("Test failed, error: %s expected error: %s", err, tc.ExpectError)
 			}
 		})
 	}

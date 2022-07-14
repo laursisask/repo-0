@@ -21,49 +21,65 @@ import (
 )
 
 func TestLoadCurrent(t *testing.T) {
+	t.Parallel()
 	cases := []struct {
 		TestName    string
 		Path        string
 		ExpectError bool
 	}{
 		{
+			TestName:    "example config",
+			Path:        "./../../../../../site/content/docs/user/kind-example-config.yaml",
+			ExpectError: false,
+		},
+		{
 			TestName:    "no config",
 			Path:        "",
 			ExpectError: false,
 		},
 		{
-			TestName:    "v1alpha3 minimal",
-			Path:        "./testdata/v1alpha3/valid-minimal.yaml",
+			TestName:    "v1alpha4 minimal",
+			Path:        "./testdata/v1alpha4/valid-minimal.yaml",
 			ExpectError: false,
 		},
 		{
-			TestName:    "v1alpha3 config with 2 nodes",
-			Path:        "./testdata/v1alpha3/valid-minimal-two-nodes.yaml",
+			TestName:    "v1alpha4 config with 2 nodes",
+			Path:        "./testdata/v1alpha4/valid-minimal-two-nodes.yaml",
 			ExpectError: false,
 		},
 		{
-			TestName:    "v1alpha3 full HA",
-			Path:        "./testdata/v1alpha3/valid-full-ha.yaml",
+			TestName:    "v1alpha4 full HA",
+			Path:        "./testdata/v1alpha4/valid-full-ha.yaml",
 			ExpectError: false,
 		},
 		{
-			TestName:    "v1alpha3 many fields set",
-			Path:        "./testdata/v1alpha3/valid-many-fields.yaml",
+			TestName:    "v1alpha4 many fields set",
+			Path:        "./testdata/v1alpha4/valid-many-fields.yaml",
 			ExpectError: false,
 		},
 		{
-			TestName:    "v1alpha3 config with patches",
-			Path:        "./testdata/v1alpha3/valid-kind-patches.yaml",
+			TestName:    "v1alpha4 config with patches",
+			Path:        "./testdata/v1alpha4/valid-kind-patches.yaml",
 			ExpectError: false,
 		},
 		{
-			TestName:    "v1alpha3 non-existent field",
-			Path:        "./testdata/v1alpha3/invalid-bogus-field.yaml",
+			TestName:    "v1alpha4 config with workers patches",
+			Path:        "./testdata/v1alpha4/valid-kind-workers-patches.yaml",
+			ExpectError: false,
+		},
+		{
+			TestName:    "v1alpha4 config with port mapping and mount",
+			Path:        "./testdata/v1alpha4/valid-port-and-mount.yaml",
+			ExpectError: false,
+		},
+		{
+			TestName:    "v1alpha4 non-existent field",
+			Path:        "./testdata/v1alpha4/invalid-bogus-field.yaml",
 			ExpectError: true,
 		},
 		{
-			TestName:    "v1alpha3 bad indentation",
-			Path:        "./testdata/v1alpha3/invalid-bad-indent.yaml",
+			TestName:    "v1alpha4 bad indentation",
+			Path:        "./testdata/v1alpha4/invalid-bad-indent.yaml",
 			ExpectError: true,
 		},
 		{

@@ -5,13 +5,13 @@ menu:
     parent: "user"
     identifier: "user-private-registries"
     weight: 3
+toc: true
+description: |-
+  This guide discusses how to use kind with image registries that
+  require authentication.
+
+  There are multiple ways to do this, which we try to cover here.
 ---
-# Private Registries
-
-Some users may want to test applications on kind that require pulling images
-from authenticated private registries, there are multiple ways to do this.
-
-
 ## Use ImagePullSecrets
 
 Kubernetes supports configuring pods to use `imagePullSecrets` for pulling
@@ -31,67 +31,40 @@ image(s) and then load them to the nodes you can avoid needing to authenticate
 on the nodes.
 
 
-# Add Credentials to the Nodes
+## Add Credentials to the Nodes
 
 Generally the upstream docs for [using a private registry] apply, with kind
 there are two options for this.
 
-## Mount a Config File to Each Node
+### Mount a Config File to Each Node
 
 If you pre-create a docker config.json containing credential(s) on the host
 you can mount it to each kind node.
 
 Assuming your file is at `/path/to/my/secret.json`, the kind config would be:
 
-```yaml
+{{< codeFromInline lang="yaml" >}}
 kind: Cluster
-apiVersion: kind.sigs.k8s.io/v1alpha3
+apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   extraMounts:
   - containerPath: /var/lib/kubelet/config.json
     hostPath: /path/to/my/secret.json
-```
+{{< /codeFromInline >}}
 
-### Use an Access Token
+#### Use an Access Token
 
 A credential can be programmatically added to the nodes at runtime.
 
 If you do this then kubelet must be restarted on each node to pick up the new credentials.
 
-An example bash snippet for generating a [gcr.io][GCR] cred file on your host machine
+An example shell snippet for generating a [gcr.io][GCR] cred file on your host machine
 using Access Tokens:
 
-```bash
-# login to GCR on all your kind nodes
+{{< codeFromFile file="static/examples/kind-gcr.sh" >}}
 
-# KUBECONFIG should point to your kind cluster
-export KUBECONFIG="$(kind get kubeconfig-path --name="kind")"
-
-# move the host config out of the way if it exists
-[ -f $HOME/.docker/config.json ] && mv $HOME/.docker/config.json $HOME/.docker/config.json.host
-
-# https://cloud.google.com/container-registry/docs/advanced-authentication#access_token
-gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-
-# setup credentials on each node
-for node in $(kubectl get nodes -oname); do
-    # the -oname format is kind/name (so node/name) we just want name
-    node_name=${node#node/}
-    # copy the config to where kubelet will look
-    docker cp $HOME/.docker/config.json ${node_name}:/var/lib/kubelet/config.json
-    # restart kubelet to pick up the config
-    docker exec ${node_name} systemctl restart kubelet.service
-done
-
-# delete the temporary config
-rm $HOME/.docker/config.json
-
-# move the original, host config back if it exists
-[-f $HOME/.docker/config.json.host] && mv $HOME/.docker/config.json.host $HOME/.docker/config.json
-```
-
-### Use a Service Account
+#### Use a Service Account
 
 Access tokens are short lived, so you may prefer to use a Service Account and keyfile instead.
 First, either download the key from the console or generate one with gcloud:
@@ -114,3 +87,26 @@ See Google's [upstream docs][keyFileAuthentication] on key file authentication f
 [loading an image]: /docs/user/quick-start/#loading-an-image-into-your-cluster
 [using a private registry]: https://kubernetes.io/docs/concepts/containers/images/#using-a-private-registry
 [GCR]: https://cloud.google.com/container-registry/
+
+#### Use a Certificate
+
+If you have a registry authenticated with certificates, and both certificates and keys
+reside on your host folder, it is possible to mount and use them into the `containerd` plugin
+patching the default configuration, like in the example:
+
+{{< codeFromInline lang="yaml" >}}
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    # This option mounts the host docker registry folder into
+    # the control-plane node, allowing containerd to access them. 
+    extraMounts:
+      - containerPath: /etc/docker/certs.d/registry.dev.example.com
+        hostPath: /etc/docker/certs.d/registry.dev.example.com
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.dev.example.com".tls]
+      cert_file = "/etc/docker/certs.d/registry.dev.example.com/ba_client.cert"
+      key_file  = "/etc/docker/certs.d/registry.dev.example.com/ba_client.key"
+{{< /codeFromInline >}}

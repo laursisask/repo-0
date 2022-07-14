@@ -17,36 +17,64 @@ limitations under the License.
 package main
 
 import (
+	"errors"
+	"fmt"
 	"io"
+	stdnet "net"
 	"os"
 	"reflect"
 	"text/template"
 
-	"github.com/pkg/errors"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/net"
 )
 
 /* cni config management */
 
 // CNIConfigInputs is supplied to the CNI config template
 type CNIConfigInputs struct {
-	PodCIDR      string
-	DefaultRoute string
+	PodCIDRs      []string
+	DefaultRoutes []string
+	Mtu           int
 }
 
 // ComputeCNIConfigInputs computes the template inputs for CNIConfigWriter
 func ComputeCNIConfigInputs(node corev1.Node) CNIConfigInputs {
-	podCIDR := node.Spec.PodCIDR
-	defaultRoute := "0.0.0.0/0"
-	if net.IsIPv6CIDRString(podCIDR) {
-		defaultRoute = "::/0"
+
+	defaultRoutes := []string{"0.0.0.0/0", "::/0"}
+	// check if is a dualstack cluster
+	if len(node.Spec.PodCIDRs) > 1 {
+		return CNIConfigInputs{
+			PodCIDRs:      node.Spec.PodCIDRs,
+			DefaultRoutes: defaultRoutes,
+		}
+	}
+	// the cluster is single stack
+	// we use the legacy node.Spec.PodCIDR for backwards compatibility
+	podCIDRs := []string{node.Spec.PodCIDR}
+	// This is a single stack cluster
+	defaultRoute := defaultRoutes[:1]
+	if isIPv6CIDRString(podCIDRs[0]) {
+		defaultRoute = defaultRoutes[1:]
 	}
 	return CNIConfigInputs{
-		PodCIDR:      podCIDR,
-		DefaultRoute: defaultRoute,
+		PodCIDRs:      podCIDRs,
+		DefaultRoutes: defaultRoute,
 	}
+}
+
+//computeBridgeMTU finds the mtu for the eth0 interface
+//otherwise it defaults to ptp default behavior of being set by kernel
+func computeBridgeMTU() (int, error) {
+	interfaces, err := stdnet.Interfaces()
+	if err != nil {
+		return 0, err
+	}
+	for _, inter := range interfaces {
+		if inter.Name == "eth0" {
+			return inter.MTU, nil
+		}
+	}
+	return 0, errors.New("Found no eth0 device")
 }
 
 // cniConfigPath is where kindnetd will write the computed CNI config
@@ -64,18 +92,23 @@ const cniConfigTemplate = `
 			"type": "host-local",
 			"dataDir": "/run/cni-ipam-state",
 			"routes": [
-				{
-					"dst": "{{ .DefaultRoute }}"
-				}
+				{{$first := true}}
+				{{- range $route := .DefaultRoutes}}
+				{{if $first}}{{$first = false}}{{else}},{{end}}
+				{ "dst": "{{ $route }}" }
+				{{- end}}
 			],
 			"ranges": [
-			[
-				{
-					"subnet": "{{ .PodCIDR }}"
-				}
+				{{$first := true}}
+				{{- range $cidr := .PodCIDRs}}
+				{{if $first}}{{$first = false}}{{else}},{{end}}
+				[ { "subnet": "{{ $cidr }}" } ]
+				{{- end}}
 			]
-		]
 		}
+		{{if .Mtu}},
+		"mtu": {{ .Mtu }}
+		{{end}}
 	},
 	{
 		"type": "portmap",
@@ -92,10 +125,12 @@ const cniConfigTemplate = `
 type CNIConfigWriter struct {
 	path       string
 	lastInputs CNIConfigInputs
+	mtu        int
 }
 
 // Write will write the config based on
 func (c *CNIConfigWriter) Write(inputs CNIConfigInputs) error {
+	inputs.Mtu = c.mtu
 	if reflect.DeepEqual(inputs, c.lastInputs) {
 		return nil
 	}
@@ -130,7 +165,7 @@ func (c *CNIConfigWriter) Write(inputs CNIConfigInputs) error {
 func writeCNIConfig(w io.Writer, rawTemplate string, data CNIConfigInputs) error {
 	t, err := template.New("cni-json").Parse(rawTemplate)
 	if err != nil {
-		return errors.Wrap(err, "failed to parse cni template")
+		return fmt.Errorf("failed to parse cni template: %w", err)
 	}
 	return t.Execute(w, &data)
 }

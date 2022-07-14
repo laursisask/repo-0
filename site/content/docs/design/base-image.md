@@ -5,16 +5,15 @@ menu:
     parent: "design"
     identifier: "base-image"
 ---
-# The Base Image
 
-**NOTE**: This may not completely cover the current implementation.
+> **NOTE**: This may not completely cover the current implementation.
 
 The ["base" image][base image] is a small-ish Docker image for running
 nested containers, systemd, and kubernetes components.
 
 To do this we need to set up an environment that will meet the CRI 
 (currently just docker) and systemd's particular needs. Documentation for each
-step we take is inline to the image's [Dockerfile][dockerfile]),
+step we take is inline to the image's [Dockerfile][dockerfile],
 but essentially:
 
 - we preinstall tools / packages expected by systemd / Docker / Kubernetes other
@@ -28,8 +27,9 @@ the container truly boots
 - we do a few tricks to minimize unnecessary services and inform systemd that it
 is in docker (see the [Dockerfile][dockerfile])
 
-This image is based on `ubuntu:18.04` image
-due to high availability of tooling.
+This image is based on the `ubuntu` image which starts relatively small for
+a Kubernetes node image, has near exclusively packages we need, and has
+relatively up to date packages.
 We strive to minimize the image size where possible.
 
 [base image]: https://sigs.k8s.io/kind/images/base
