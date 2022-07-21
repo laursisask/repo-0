@@ -70,10 +70,14 @@ func (p *provider) Provision(status *cli.Status, cfg *config.Cluster) (err error
 
 	// ensure the pre-requisite network exists
 	networkName := fixedNetworkName
-	if n := os.Getenv("KIND_EXPERIMENTAL_DOCKER_NETWORK"); n != "" {
+	if n := os.Getenv("KIND_EXPERIMENTAL_DOCKER_NETWORK"); n != "" || cfg.DockerNetwork != "" {
 		p.logger.Warn("WARNING: Overriding docker network due to KIND_EXPERIMENTAL_DOCKER_NETWORK")
 		p.logger.Warn("WARNING: Here be dragons! This is not supported currently.")
-		networkName = n
+		if n != "" {
+			networkName = n
+		} else if cfg.DockerNetwork != "" {
+			networkName = cfg.DockerNetwork
+		}
 	}
 	if err := ensureNetwork(networkName); err != nil {
 		return errors.Wrap(err, "failed to ensure docker network")
