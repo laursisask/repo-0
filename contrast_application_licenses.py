@@ -1,6 +1,7 @@
 import argparse
 import logging
 import sys
+from collections import defaultdict
 from dataclasses import dataclass
 from time import sleep
 
@@ -113,11 +114,20 @@ def metadata_to_str(metadata_entities: dict) -> str:
     )
 
 
-def count_licensed_applications() -> tuple[int, dict]:
+@dataclass
+class AppCounts:
+    unique_licensed_applications: int
+    environment_applications: dict[str, dict]
+
+
+def count_licensed_applications() -> AppCounts:
     apps: set[Application] = set()
-    environment_count = {}
+    # map of environment -> language -> application count
+    environment_apps_by_language: dict[str, dict[str, int]] = {}
 
     for environment_name, environment in environments.items():
+        # map of language -> application count, defaulting at 0 for new keys
+        language_count = defaultdict(int)
         logger.info(f"Listing applications for environment '{environment_name}'...")
         applications = environment.list_org_apps(
             environment._org_uuid,
@@ -134,6 +144,7 @@ def count_licensed_applications() -> tuple[int, dict]:
                 metadata,
             )
             apps.add(app)
+            language_count[app.language] = language_count[app.language] + 1
 
         logger.debug(f"Unique application count is now: {len(apps)}")
 
@@ -141,34 +152,47 @@ def count_licensed_applications() -> tuple[int, dict]:
         logger.info(
             f"Environment '{environment_name}' app count: {environment_app_count}"
         )
-        environment_count[environment_name] = environment_app_count
+        environment_apps_by_language[environment_name] = language_count
 
     unique_license_count = len(apps)
     logger.info(f"Unique license count: {unique_license_count}")
-    return (unique_license_count, environment_count)
+    return AppCounts(unique_license_count, environment_apps_by_language)
 
 
 registry = CollectorRegistry()
-total_guage = Gauge(
+unique_guage = Gauge(
     "contrast_assess_unique_licensed_applications",
     "Number of unique licensed Contrast Assess applications, de-duplicated by name, language and metadata values.",
     registry=registry,
 )
 environment_guage = Gauge(
-    "contrast_assess_licensed_applications",
+    "contrast_assess_licensed_applications_total",
     "Number of licensed Contrast Assess applications on an environment.",
     ["environment"],
+    registry=registry,
+)
+language_guage = Gauge(
+    "contrast_assess_licensed_applications",
+    "Number of licensed Contrast Assess applications in a specific language.",
+    ["language", "environment"],
     registry=registry,
 )
 
 
 def update_registry():
     data = count_licensed_applications()
-    total_guage.set(data[0])
+    unique_guage.set(data.unique_licensed_applications)
 
-    for environment, count in data[1].items():
+    for environment, language_counts in data.environment_applications.items():
+        total_apps_in_environment = 0
+
+        for language, count in language_counts.items():
+            total_apps_in_environment += count
+            gauge = language_guage.labels(environment=environment, language=language)
+            gauge.set(count)
+
         gauge = environment_guage.labels(environment=environment)
-        gauge.set(count)
+        gauge.set(total_apps_in_environment)
 
 
 update_registry()

@@ -71,11 +71,17 @@ If neither option is provided, counts are logged at the default info level.
 ```
 # HELP contrast_assess_unique_licensed_applications Number of unique licensed Contrast Assess applications, de-duplicated by name, language and metadata values.
 # TYPE contrast_assess_unique_licensed_applications gauge
-contrast_assess_unique_licensed_applications 4.0
-# HELP contrast_assess_licensed_applications Number of licensed Contrast Assess applications on an environment.
+contrast_assess_unique_licensed_applications 6.0
+# HELP contrast_assess_licensed_applications_total Number of licensed Contrast Assess applications on an environment.
+# TYPE contrast_assess_licensed_applications_total gauge
+contrast_assess_licensed_applications_total{environment="Environment1"} 5.0
+contrast_assess_licensed_applications_total{environment="Environment2-EU"} 3.0
+# HELP contrast_assess_licensed_applications Number of licensed Contrast Assess applications in a specific language.
 # TYPE contrast_assess_licensed_applications gauge
-contrast_assess_licensed_applications{environment="Environment1"} 3.0
-contrast_assess_licensed_applications{environment="Environment2-EU"} 3.0
+contrast_assess_licensed_applications{environment="Environment1",language="Node"} 3.0
+contrast_assess_licensed_applications{environment="Environment1",language="Java"} 1.0
+contrast_assess_licensed_applications{environment="Environment1",language="PHP"} 1.0
+contrast_assess_licensed_applications{environment="Environment2-EU",language="Node"} 3.0
 
 ```
 
