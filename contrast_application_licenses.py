@@ -177,8 +177,19 @@ language_guage = Gauge(
     ["language", "environment"],
     registry=registry,
 )
+poll_gauge = Gauge(
+    "contrast_assess_licensed_applications_updated_unixtime",
+    "Time the Contrast Assess licensed applications were last polled.",
+    registry=registry,
+)
+update_timer = Gauge(
+    "contrast_assess_licensed_applications_update_duration_seconds",
+    "Time it took to update license counts.",
+    registry=registry,
+)
 
 
+@update_timer.time()
 def update_registry():
     data = count_licensed_applications()
     unique_guage.set(data.unique_licensed_applications)
@@ -193,6 +204,8 @@ def update_registry():
 
         gauge = environment_guage.labels(environment=environment)
         gauge.set(total_apps_in_environment)
+
+    poll_gauge.set_to_current_time()
 
 
 update_registry()
