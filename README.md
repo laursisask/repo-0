@@ -82,6 +82,12 @@ contrast_assess_licensed_applications{environment="Environment1",language="Node"
 contrast_assess_licensed_applications{environment="Environment1",language="Java"} 1.0
 contrast_assess_licensed_applications{environment="Environment1",language="PHP"} 1.0
 contrast_assess_licensed_applications{environment="Environment2-EU",language="Node"} 3.0
+# HELP contrast_assess_licensed_applications_updated_unixtime Time the Contrast Assess licensed applications were last polled.
+# TYPE contrast_assess_licensed_applications_updated_unixtime gauge
+contrast_assess_licensed_applications_updated_unixtime 1.663061168118352e+09
+# HELP contrast_assess_licensed_applications_update_duration_seconds Time it took to update license counts.
+# TYPE contrast_assess_licensed_applications_update_duration_seconds gauge
+contrast_assess_licensed_applications_update_duration_seconds 0.0750698340125382
 
 ```
 
