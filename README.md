@@ -14,6 +14,11 @@ You can run this script locally with a Python install, or, in a container with t
 
 ### Container use
 
+#### Pre-built
+```bash
+docker run -it -v $PWD/config.json:/usr/src/app/config.json ghcr.io/contrast-security-oss/assess-application-counter:main <...args...>
+```
+
 #### Local build
 ```bash
 docker build . --tag contrast-count-assess-licenses # Build the container
