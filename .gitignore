@@ -1,6 +1,10 @@
 # Chart dependencies
 /charts/*/charts
 .idea
+<<<<<<< HEAD
 .DS_Store
 .github/.DS_Store
 charts/.DS_Store
+=======
+.vscode
+>>>>>>> 04689721 ([kube-prometheus-stack] Update Prometheus to v2.39.0 (#2524))
