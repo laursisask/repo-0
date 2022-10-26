@@ -19,43 +19,22 @@ package nodeutils
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
-	"path/filepath"
+	"path"
 	"strings"
+
+	"github.com/pelletier/go-toml"
 
 	"sigs.k8s.io/kind/pkg/cluster/nodes"
 	"sigs.k8s.io/kind/pkg/errors"
 	"sigs.k8s.io/kind/pkg/exec"
-
-	"sigs.k8s.io/kind/pkg/internal/cluster/providers/provider/common"
 )
-
-// GetControlPlaneEndpoint returns the control plane endpoints for IPv4 and IPv6
-// in case the cluster has an external load balancer in front of the control-plane nodes,
-// otherwise return the bootstrap node IPs
-func GetControlPlaneEndpoint(allNodes []nodes.Node) (string, string, error) {
-	node, err := APIServerEndpointNode(allNodes)
-	if err != nil {
-		return "", "", err
-	}
-
-	// gets the control plane IP addresses
-	controlPlaneIPv4, controlPlaneIPv6, err := node.IP()
-	if err != nil {
-		return "", "", errors.Wrapf(err, "failed to get IPs for node: %s", node.String())
-	}
-
-	// TODO: place this in a central constant
-	// TODO: should probably use net.JoinHostPort
-	return fmt.Sprintf("%s:%d", controlPlaneIPv4, common.APIServerInternalPort), fmt.Sprintf("[%s]:%d", controlPlaneIPv6, common.APIServerInternalPort), nil
-}
 
 // KubeVersion returns the Kubernetes version installed on the node
 func KubeVersion(n nodes.Node) (version string, err error) {
 	// grab kubernetes version from the node image
 	cmd := n.Command("cat", "/kind/version")
-	lines, err := exec.CombinedOutputLines(cmd)
+	lines, err := exec.OutputLines(cmd)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to get file")
 	}
@@ -68,9 +47,9 @@ func KubeVersion(n nodes.Node) (version string, err error) {
 // WriteFile writes content to dest on the node
 func WriteFile(n nodes.Node, dest, content string) error {
 	// create destination directory
-	err := n.Command("mkdir", "-p", filepath.Dir(dest)).Run()
+	err := n.Command("mkdir", "-p", path.Dir(dest)).Run()
 	if err != nil {
-		return errors.Wrapf(err, "failed to create directory %s", dest)
+		return errors.Wrapf(err, "failed to create directory %s", path.Dir(dest))
 	}
 
 	return n.Command("cp", "/dev/stdin", dest).SetStdin(strings.NewReader(content)).Run()
@@ -79,9 +58,9 @@ func WriteFile(n nodes.Node, dest, content string) error {
 // CopyNodeToNode copies file from a to b
 func CopyNodeToNode(a, b nodes.Node, file string) error {
 	// create destination directory
-	err := b.Command("mkdir", "-p", filepath.Dir(file)).Run()
+	err := b.Command("mkdir", "-p", path.Dir(file)).Run()
 	if err != nil {
-		return errors.Wrapf(err, "failed to create directory %q", filepath.Dir(file))
+		return errors.Wrapf(err, "failed to create directory %q", path.Dir(file))
 	}
 
 	// TODO: experiment with streaming instead to avoid the copy
@@ -97,14 +76,40 @@ func CopyNodeToNode(a, b nodes.Node, file string) error {
 	return nil
 }
 
+// LoadImageArchive loads image onto the node, where image is a Reader over an image archive
 func LoadImageArchive(n nodes.Node, image io.Reader) error {
-	cmd := n.Command("ctr", "--namespace=k8s.io", "images", "import", "-").SetStdin(image)
+	snapshotter, err := getSnapshotter(n)
+	if err != nil {
+		return err
+	}
+	cmd := n.Command("ctr", "--namespace=k8s.io", "images", "import", "--digests", "--snapshotter="+snapshotter, "-").SetStdin(image)
 	if err := cmd.Run(); err != nil {
 		return errors.Wrap(err, "failed to load image")
 	}
 	return nil
 }
 
+func getSnapshotter(n nodes.Node) (string, error) {
+	out, err := exec.Output(n.Command("containerd", "config", "dump"))
+	if err != nil {
+		return "", errors.Wrap(err, "failed to detect containerd snapshotter")
+	}
+	return parseSnapshotter(string(out))
+}
+
+func parseSnapshotter(config string) (string, error) {
+	parsed, err := toml.Load(config)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to detect containerd snapshotter")
+	}
+	snapshotter, ok := parsed.GetPath([]string{"plugins", "io.containerd.grpc.v1.cri", "containerd", "snapshotter"}).(string)
+	if !ok {
+		return "", errors.New("failed to detect containerd snapshotter")
+	}
+	return snapshotter, nil
+}
+
+// ImageID returns ID of image on the node with the given image name if present
 func ImageID(n nodes.Node, image string) (string, error) {
 	var out bytes.Buffer
 	if err := n.Command("crictl", "inspecti", image).SetStdout(&out).Run(); err != nil {

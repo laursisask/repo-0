@@ -18,12 +18,12 @@ package exec
 
 import (
 	"bytes"
+	"context"
 	"io"
 	osexec "os/exec"
 	"sync"
 
 	"sigs.k8s.io/kind/pkg/errors"
-	"sigs.k8s.io/kind/pkg/globals"
 )
 
 // LocalCmd wraps os/exec.Cmd, implementing the kind/pkg/exec.Cmd interface
@@ -42,6 +42,13 @@ var _ Cmder = &LocalCmder{}
 func (c *LocalCmder) Command(name string, arg ...string) Cmd {
 	return &LocalCmd{
 		Cmd: osexec.Command(name, arg...),
+	}
+}
+
+// CommandContext is like Command but includes a context
+func (c *LocalCmder) CommandContext(ctx context.Context, name string, arg ...string) Cmd {
+	return &LocalCmd{
+		Cmd: osexec.CommandContext(ctx, name, arg...),
 	}
 }
 
@@ -113,7 +120,6 @@ func (cmd *LocalCmd) Run() error {
 		}
 	}
 	// TODO: should be in the caller or logger should be injected somehow ...
-	globals.GetLogger().V(3).Infof("Running: \"%s\"", PrettyCommand(cmd.Args[0], cmd.Args[1:]...))
 	if err := cmd.Cmd.Run(); err != nil {
 		return errors.WithStack(&RunError{
 			Command: cmd.Args,

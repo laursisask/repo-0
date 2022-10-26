@@ -5,18 +5,16 @@ menu:
     parent: "design"
     identifier: "node-image"
 ---
-# The Node Image
 
-
-**NOTE**: This may not completely cover the current implementation.
+> **NOTE**: This may not completely cover the current implementation.
 
 The ["node" image][node image] is a Docker image for running
 nested containers, systemd, and Kubernetes components.
 
 This image is built on top of the ["base" image][base image].
 
-Logic for building both can be found in [`pkg/build`][build package],
-and they can be built with `kind build base-image` and `kind build node-image` respectively.
+Logic for building ["node" image][node image] can be found in [`pkg/build`][build package],
+and it can be built with `kind build node-image` respectively.
 
 ## Design
 

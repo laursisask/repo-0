@@ -4,33 +4,56 @@ menu:
   main:
     parent: "user"
     identifier: "known-issues"
-    weight: 3
+    weight: 2
+description: |-
+  Having problems with kind? This guide covers some known problems and solutions / workarounds.
+
+  It may additionally be helpful to:
+
+  - check our [issue tracker]
+  - [file an issue][file an issue] (if there isn't one already)
+  - reach out and ask for help in [#kind] on the [kubernetes slack]
+
+  [issue tracker]: https://github.com/kubernetes-sigs/kind/issues
+  [file an issue]: https://github.com/kubernetes-sigs/kind/issues/new
+  [#kind]: https://kubernetes.slack.com/messages/CEKK1KTN2/
+  [kubernetes slack]: https://slack.k8s.io/
 ---
-# Known Issues
 
-Having problems with kind? This guide is covers some known problems and solutions / workarounds.
 
-It may additionally be helpful to:
-
-- check our [issue tracker]
-- [file an issue][file an issue] (if there isn't one already)
-- reach out and ask for help in [#kind] on the [kubernetes slack]
 
 ## Contents
-* [Failures involving mismatched kubectl versions](#failures-involving-mismatched-kubectl-version)
-* [Older Docker Installations](#older-docker-installations)
-* [Docker on Btrfs](#docker-on-btrfs)
-* [Docker installed with Snap](#docker-installed-with-snap)
-* [Failing to apply overlay network](#failing-to-apply-overlay-network)
-* [Failure to build node image](#failure-to-build-node-image)
-* [Failure for cluster to properly start](#failure-for-cluster-to-properly-start)
-* [Pod errors due to "too many open files"](#pod-errors-due-to-too-many-open-files)
-* [Docker permission denied](#docker-permission-denied)
-* [Docker on Windows](#docker-on-windows)
+* [Troubleshooting Kind](#troubleshooting-kind)
+* [Kubectl Version Skew](#kubectl-version-skew) (Kubernetes limits supported version skew)
+* [Older Docker Installations](#older-docker-installations) (untested, known to have bugs)
+* [Docker Installed With Snap](#docker-installed-with-snap) (snap filesystem restrictions problematic)
+* [Failure to Build Node Image](#failure-to-build-node-image) (usually need to increase resources)
+* [Failing to Properly Start Cluster](#failing-to-properly-start-cluster) (various causes)
+* [Failure to Create Cluster with Cgroups v2](#failure-to-create-cluster-with-cgroups-v2) (only supported for Kubernetes >= 1.19)
+* [Pod Errors Due to "too many open files"](#pod-errors-due-to-too-many-open-files) (likely [inotify] limits which are not namespaced)
+* [Docker Permission Denied](#docker-permission-denied) (ensure you have permission to use docker)
+* [Windows Containers](#windows-containers) (unsupported / infeasible)
+* [Non-AMD64 Architectures](#nonamd64-architectures) (images not pre-built yet)
+* [Unable to Pull Images](#unable-to-pull-images) (various)
+* [Chrome OS](#chrome-os) (unsupported)
+* [AppArmor](#apparmor) (may break things, consider disabling)
+* [IPv6 Port Forwarding](#ipv6-port-forwarding) (docker doesn't seem to implement this correctly)
+* [Couldn't find an alternative telinit implementation to spawn](#docker-init-daemon-config)
+* [Fedora](#fedora) (various)
+* [Failed to get rootfs info](#failed-to-get-rootfs-info--stat-failed-on-dev)
+* [Failure to Create Cluster with Docker Desktop as Container Runtime](#failure-to-create-cluster-with-docker-desktop-as-container-runtime)
+* [Docker Desktop for macOS and Windows](#docker-desktop-for-macos-and-windows)
 
-## Failures involving mismatched kubectl versions
+## Troubleshooting Kind
 
-`kind` will fail create a cluster, if the version of Kubernetes for the client and server differ.
+If the cluster fails to create, try again with the `--retain` option (preserving the failed container),
+then run `kind export logs` to export the logs from the container to a temporary directory on the host.
+
+## Kubectl Version Skew
+
+You may have problems interacting with your kind cluster if your client(s) are
+skewed too far from the kind node version. Kubernetes [only supports limited skew][version skew]
+between clients and the API server.
 
 This is a issue that frequently occurs when running `kind` alongside Docker For Mac.
 
@@ -38,26 +61,26 @@ This problem is related to a bug in [docker on macOS][for-mac#3663]
 
 If you see something like the following error message:
 ```bash
-kubectl edit deploy -n kube-system kubernetes-dashboard
+$ kubectl edit deploy -n kube-system kubernetes-dashboard
 error: SchemaError(io.k8s.api.autoscaling.v2beta1.ExternalMetricStatus): invalid object doesn't have additional properties
 ```
 
 You can check your client and server versions by running:
-```bash
+{{< codeFromInline lang="bash" >}}
 kubectl version
-```
+{{< /codeFromInline >}}
 
-If there is a mismatch between the server and client versions, you should install a newer client version. 
+If there is a mismatch between the server and client versions, you should install a newer client version.
 
 If you are using Mac, you can install kubectl via homebrew by running:
-```bash
+{{< codeFromInline lang="bash" >}}
 brew install kubernetes-cli
-```
+{{< /codeFromInline >}}
 
 And overwrite the symlinks created by Docker For Mac by running:
-```bash
+{{< codeFromInline lang="bash" >}}
 brew link --overwrite kubernetes-cli
-```
+{{< /codeFromInline >}}
 
 [for-mac#3663]: https://github.com/docker/for-mac/issues/3663
 
@@ -72,30 +95,9 @@ And possibly other old versions of Docker.
 
 With these versions you must use Kubernetes >= 1.14, or more ideally upgrade Docker instead.
 
-kind is tested with a recent stable docker-ce release.
+kind is tested with a recent stable `docker-ce` release.
 
-## Docker on Btrfs
-
-`kind` cannot run properly if containers on your machine / host are backed by a
-[Btrfs](https://en.wikipedia.org/wiki/Btrfs) filesystem.
-
-This should only be relevant on Linux, on which you can check with:
-
-```
-docker info | grep -i storage
-```
-
-As a workaround, create the following configuration in `/etc/docker/daemon.json`:
-
-```
-{
-  "storage-driver": "overlay2"
-}
-```
-
-After restarting the Docker daemon you should see that Docker is now using the `overlay2` storage driver instead of `btrfs`.
-
-### Docker Installed with Snap
+## Docker Installed with Snap
 
 If you installed Docker with [snap], it is likely that `docker` commands do not
 have access to `$TMPDIR`. This may break some kind commands which depend
@@ -104,42 +106,6 @@ on using temp directories (`kind build ...`).
 Currently a workaround for this is setting the `TEMPDIR` environment variable to
 a directory snap does have access to when working with kind.
 This can for example be some directory under `$HOME`.
-
-## Failing to apply overlay network
-There are two known causes for problems while applying the overlay network
-while building a kind cluster:
-
-* Host machine is behind a proxy
-* Usage of Docker version 18.09
-
-If you see something like the following error message:
-```
- ✗ [kind-1-control-plane] Starting Kubernetes (this may take a minute) ☸
-FATA[07:20:43] Failed to create cluster: failed to apply overlay network: exit status 1
-```
-
-or the following, when setting the `loglevel` flag to debug,
-```
-DEBU[16:26:53] Running: /usr/bin/docker [docker exec --privileged kind-1-control-plane /bin/sh -c kubectl apply --kubeconfig=/etc/kubernetes/admin.conf -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version --kubeconfig=/etc/kubernetes/admin.conf | base64 | tr -d '\n')"]
-ERRO[16:28:25] failed to apply overlay network: exit status 1 ) ☸
- ✗ [control-plane] Starting Kubernetes (this may take a minute) ☸
-ERRO[16:28:25] failed to apply overlay network: exit status 1
-DEBU[16:28:25] Running: /usr/bin/docker [docker ps -q -a --no-trunc --filter label=io.k8s.sigs.kind.cluster --format {{.Names}}\t{{.Label "io.k8s.sigs.kind.cluster"}} --filter label=io.k8s.sigs.kind.cluster=1]
-DEBU[16:28:25] Running: /usr/bin/docker [docker rm -f -v kind-1-control-plane]
-⠈⠁ [control-plane] Pre-loading images 🐋 Error: failed to create cluster: failed to apply overlay network: exit status 1
-```
-
-The issue may be due to your host machine being behind a proxy, such as in
-[kind#136][kind#136].
-We are currently looking into ways of mitigating this issue by preloading CNI
-artifacts, see [kind#200][kind#200].
-Another possible solution is to enable kind nodes to use a proxy when
-downloading images, see [kind#270][kind#270].
-
-The last known case for this issue comes from the host machine 
-[using Docker 18.09 in kind#136][kind#136-docker]. 
-In this case, a known solution is to upgrade to any Docker version greater than or
-equal to Docker 18.09.1.
 
 
 ## Failure to build node image
@@ -176,7 +142,7 @@ Flags:
   -h, --help                help for node-image
       --image string        name:tag of the resulting image to be built (default "kindest/node:latest")
       --kube-root string    Path to the Kubernetes source directory (if empty, the path is autodetected)
-      --type string         build type, one of [bazel, docker] (default "docker")
+      --type string         build type, default is docker (default "docker")
 
 Global Flags:
       --loglevel string   logrus log level [panic, fatal, error, warning, info, debug] (default "warning")
@@ -192,7 +158,7 @@ Open the **Preferences** menu.
 
 <img src="/docs/user/images/docker-pref-1.png"/>
 
-Go to the **Advanced** settings page, and change the settings there, see 
+Go to the **Advanced** settings page, and change the settings there, see
 [changing Docker's resource limits][Docker resource lims].
 
 <img width="400px" src="/docs/user/images/docker-pref-build.png" alt="Setting 8Gb of memory in Docker for Mac" />
@@ -200,7 +166,7 @@ Go to the **Advanced** settings page, and change the settings there, see
 <img width="400px" src="/docs/user/images/docker-pref-build-win.png" alt="Setting 8Gb of memory in Docker for Windows" />
 
 ## Failing to properly start cluster
-This issue is similar to a 
+This issue is similar to a
 [failure while building the node image](#failure-to-build-node-image).
 If the cluster creation process was successful but you are unable to see any
 Kubernetes resources running, for example:
@@ -217,7 +183,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 or `kubectl` being unable to connect to the cluster,
 ```
-$ export KUBECONFIG="$(kind get kubeconfig-path)"
+$ kind export kubeconfig
 $ kubectl cluster-info
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
@@ -225,16 +191,16 @@ Unable to connect to the server: EOF
 ```
 
 Then as in [kind#156][kind#156], you may solve this issue by claiming back some
-space on your machine by removing unused data or images left by the Docker 
+space on your machine by removing unused data or images left by the Docker
 engine by running:
-```
+{{< codeFromInline lang="bash" >}}
 docker system prune
-```
+{{< /codeFromInline >}}
 
-and / or:
-```
+And / or:
+{{< codeFromInline lang="bash" >}}
 docker image prune
-```
+{{< /codeFromInline >}}
 
 You can verify the issue by exporting the logs (`kind export logs`) and looking
 at the kubelet logs, which may have something like the following:
@@ -242,30 +208,30 @@ at the kubelet logs, which may have something like the following:
 Dec 07 00:37:53 kind-1-control-plane kubelet[688]: I1207 00:37:53.229561     688 eviction_manager.go:340] eviction manager: must evict pod(s) to reclaim ephemeral-storage
 Dec 07 00:37:53 kind-1-control-plane kubelet[688]: E1207 00:37:53.229638     688 eviction_manager.go:351] eviction manager: eviction thresholds have been met, but no pods are active to evict
 ```
+## Failure to Create Cluster with Cgroups v2
+Support for Cgroups v2 was introduced in Kubernetes 1.19 (see [release notes](https://v1-19.docs.kubernetes.io/docs/setup/release/notes/)). Accordingly, only Kubernetes versions >= 1.19 are supported on hosts using Cgroups v2.
 
-If on the other hand you are running kind on a btrfs partition and your logs
-show something like the following:
+You can verify that you are hitting this issue by exporting the logs (`kind export logs`) and looking
+at the kubelet logs, which may have something like the following:
 ```
-an 03 17:42:41 kind-1-control-plane kubelet[3804]: F0103 17:42:41.470269 3804 kubelet.go:1359] Failed to start ContainerManager failed to get rootfs info: failed to get device for dir "/ var/lib/kubelet": could not find device with major: 0, minor: 67 in cached partitions map
+Feb 23 08:39:04 kind-control-plane kubelet[3031]: W0223 08:39:04.644052    3031 server.go:616] failed to get the kubelet's cgroup: mountpoint for cpu not found.  Kubelet system container metrics may be missing.
+Feb 23 08:39:04 kind-control-plane kubelet[3031]: F0223 08:39:04.644296    3031 server.go:274] failed to run Kubelet: mountpoint for  not found
 ```
-
-This problem seems to be related to a [bug in Docker][moby#9939].
-
 ## Pod errors due to "too many open files"
 
 This may be caused by running out of [inotify](https://linux.die.net/man/7/inotify) resources. Resource limits are defined by `fs.inotify.max_user_watches` and `fs.inotify.max_user_instances` system variables. For example, in Ubuntu these default to 8192 and 128 respectively, which is not enough to create a cluster with many nodes.
 
 To increase these limits temporarily run the following commands on the host:
-```
-$ sudo sysctl fs.inotify.max_user_watches=524288
-$ sudo sysctl fs.inotify.max_user_instances=512
-```
+{{< codeFromInline lang="bash" >}}
+sudo sysctl fs.inotify.max_user_watches=524288
+sudo sysctl fs.inotify.max_user_instances=512
+{{< /codeFromInline >}}
 
 To make the changes persistent, edit the file `/etc/sysctl.conf` and add these lines:
-```
+{{< codeFromInline lang="bash" >}}
 fs.inotify.max_user_watches = 524288
 fs.inotify.max_user_instances = 512
-```
+{{< /codeFromInline >}}
 
 ## Docker permission denied
 
@@ -280,17 +246,152 @@ open /home/user/.docker/config.json: permission denied
 To fix this problem, either follow the docker's docs [manage docker as a non root user][manage docker as a non root user],
 or try to use `sudo` before your commands (if you get `command not found` please check [this comment about sudo with kind][sudo with kind]).
 
-## Docker on Windows
+
+## Docker init daemon config
+
+Please make sure that when you use `kind`, you can't have `"init": true` in your `/etc/docker/daemon.json` because that will
+cause `/sbin/init` to show the following cryptic message *Couldn't find an alternative telinit implementation to spawn*.
+This has to to with `/sbin/init` not running as process id 1.
+
+## Windows Containers
 
 [Docker Desktop for Windows][docker desktop for windows] supports running both Linux (the default) and Windows Docker containers.
 
 `kind` for Windows requires Linux containers. To switch between Linux and Windows containers see [this page][switch between windows and linux containers].
 
+Windows containers are not like Linux containers and do not support running docker in docker and therefore cannot support kind.
+
+## Non-AMD64 Architectures
+
+KIND does not currently ship pre-built images for non-amd64 architectures.
+In the future we may, but currently demand has been low and the cost to build
+has been high.
+
+To use kind on other architectures, you need to first build a base image
+and then build a node image.
+
+Run `images/base/build.sh` and then taking note of the built image name use `kind build node-image --base-image=kindest/base:tag-i-built`.
+
+There are more details about how to do this in the [Quick Start] guide.
+
+## Unable to pull images
+
+When using named KIND instances you may sometimes see your images failing to pull correctly on pods. This will usually manifest itself with the following output when doing a `kubectl describe pod my-pod`
+
+```
+Failed to pull image "docker.io/my-custom-image:tag": rpc error: code = Unknown desc = failed to resolve image "docker.io/library/my-custom-image:tag": no available registry endpoint: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+```
+
+If this image has been loaded onto your kind cluster using the command `kind load docker-image my-custom-image` then you have likely not provided the name parameter.
+
+Re-run the command this time adding the `--name my-cluster-name` param:
+
+`kind load docker-image my-custom-image --name my-cluster-name`
+
+## Chrome OS
+
+Kubernetes does not work in the Chrome OS Linux sandbox.
+
+Please see the upstream issue https://bugs.chromium.org/p/chromium/issues/detail?id=878034
+
+For previous discussion see: https://github.com/kubernetes-sigs/kind/issues/763
+
+## AppArmor
+
+If your host has [AppArmor] enabled you may run into [moby/moby/issues/7512](https://github.com/moby/moby/issues/7512#issuecomment-51845976).
+
+You will likely need to disable apparmor on your host or at least any profile(s)
+related to applications you are trying to run in KIND.
+
+See Previous Discussion: [kind#1179]
+
+## IPv6 Port Forwarding
+
+Docker assumes that all the IPv6 addresses should be reachable, hence doesn't implement
+port mapping using NAT [moby#17666].
+
+You will likely need to use Kubernetes services like NodePort or LoadBalancer to access
+your workloads inside the cluster via the nodes IPv6 addresses.
+
+See Previous Discussion: [kind#1326]
+
+## Failed to get rootfs info / "stat failed on /dev/..."
+
+On some systems, creating a cluster times out with these errors in kubelet.log (device varies):
+
+```
+stat failed on /dev/nvme0n1p3 with error: no such file or directory
+"Failed to start ContainerManager" err="failed to get rootfs info: failed to get device for dir \"/var/lib/kubelet\": could not find device with major: 0, minor: 40 in cached partitions map"
+```
+
+Kubernetes needs access to storage device nodes in order to do some stuff, e.g. tracking free disk space. Therefore, Kind needs to mount the necessary device nodes from the host into the control-plane container — however, it cannot always determine which device Kubernetes requires, since this varies with the host OS and filesystem. For example, the error above occurred with a BTRFS filesystem on Fedora Desktop 35.
+
+This can be worked around by including the necessary device as an extra mount in the cluster configuration file.
+
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraMounts:
+    - hostPath: /dev/nvme0n1p3
+      containerPath: /dev/nvme0n1p3
+      propagation: HostToContainer
+```
+
+To identify the device that must be listed, two variations have been observed.
+* The device reported in the error message is a symlink (e.g. `/dev/mapper/luks-903aad3d-...`) — in this case, the config file should refer to the target of that symlink (e.g. `/dev/dm-0`).
+* The device reported in the error message is a regular block device (e.g. `/dev/nvme0n1p3`) — in this case, use the device reported.
+
+See Previous Discussion: [kind#2411]
+
+## Fedora
+
+### Firewalld
+
+On Fedora 32 [firewalld] moved to nftables backend by default.
+This seems to be incompatible with Docker, leading to KIND cluster nodes not
+being able to reach each other.
+
+You can work around this by changing the `FirewallBackend` in the `/etc/firewalld/firewalld.conf ` file from `nftables` to `iptables` and restarting firewalld.
+
+```console
+sed -i /etc/firewalld/firewalld.conf 's/FirewallBackend=.*/FirewallBackend=iptables/'
+systemctl restart firewalld
+```
+
+See [#1547 (comment)](https://github.com/kubernetes-sigs/kind/issues/1547#issuecomment-623756313)
+and [Docker and Fedora 32 article](https://fedoramagazine.org/docker-and-fedora-32/)
+
+### SELinux
+
+On Fedora 33 an update to the SELinux policy causes `kind create cluster` to fail with an error like
+
+```sh
+docker: Error response from daemon: open /dev/dma_heap: permission denied.
+```
+
+Although the policy has been fixed in Fedora 34, the fix has not been backported to Fedora 33 as of June 28, 2021. Putting SELinux in permissive mode (`setenforce 0`) is one known workaround. This disables SELinux until the next boot. For more details, see [kind#2296].
+
+## Failure to Create Cluster with Docker Desktop as Container Runtime
+
+Docker Desktop 4.3.0+ uses Cgroups v2 (see [release notes](https://docs.docker.com/release-notes/)) and can only work with Kubernetes versions >= 1.19 (see [failure to create cluster with Cgroups v2](https://kind.sigs.k8s.io/docs/user/known-issues/#failure-to-create-cluster-with-cgroups-v2)).
+
+There are a couple options for getting around this limitation with Docker
+Desktop. You may downgrade your Docker Desktop to version 4.2.0. This was the
+last release to default to cgroupv1.
+
+You may also be able to make a configuration change to your Docker Desktop
+settings. Starting with Docker Desktop 4.4.2 a deprecated option has been added
+to support those requiring cgroupv1. As noted in the [4.4.2 release
+notes](https://docs.docker.com/desktop/mac/release-notes/#docker-desktop-442),
+the setting `deprecatedCgroupv1` can be set to `true` in `settings.json`. After
+restarting the Docker Engine, the VM used by Docker Desktop will use cgroupv1.
 
 [issue tracker]: https://github.com/kubernetes-sigs/kind/issues
 [file an issue]: https://github.com/kubernetes-sigs/kind/issues/new
 [#kind]: https://kubernetes.slack.com/messages/CEKK1KTN2/
-[kubernetes slack]: http://slack.k8s.io/
+[kubernetes slack]: https://slack.k8s.io/
 [kind#136]: https://github.com/kubernetes-sigs/kind/issues/136
 [kind#136-docker]: https://github.com/kubernetes-sigs/kind/issues/136#issuecomment-457015838
 [kind#156]: https://github.com/kubernetes-sigs/kind/issues/156
@@ -298,10 +399,24 @@ or try to use `sudo` before your commands (if you get `command not found` please
 [kind#200]: https://github.com/kubernetes-sigs/kind/issues/200
 [kind#229]: https://github.com/kubernetes-sigs/kind/issues/229
 [kind#270]: https://github.com/kubernetes-sigs/kind/issues/270
+[kind#1179]: https://github.com/kubernetes-sigs/kind/issues/1179
+[kind#1326]: https://github.com/kubernetes-sigs/kind/issues/1326
+[kind#2296]: https://github.com/kubernetes-sigs/kind/issues/2296
+[kind#2411]: https://github.com/kubernetes-sigs/kind/issues/2411
 [moby#9939]: https://github.com/moby/moby/issues/9939
+[moby#17666]: https://github.com/moby/moby/issues/17666
 [Docker resource lims]: https://docs.docker.com/docker-for-mac/#advanced
 [snap]: https://snapcraft.io/
 [manage docker as a non root user]: https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user
 [sudo with kind]: https://github.com/kubernetes-sigs/kind/issues/713#issuecomment-512665315
 [docker desktop for windows]: https://hub.docker.com/editions/community/docker-ce-desktop-windows
 [switch between windows and linux containers]: https://docs.docker.com/docker-for-windows/#switch-between-windows-and-linux-containers
+[version skew]: https://kubernetes.io/docs/setup/release/version-skew-policy/#supported-version-skew
+[Quick Start]: /docs/user/quick-start
+[AppArmor]: https://en.wikipedia.org/wiki/AppArmor
+[firewalld]: https://firewalld.org/
+[inotify]: https://en.wikipedia.org/wiki/Inotify
+
+## Docker Desktop for macOS and Windows
+
+Docker containers cannot be executed natively on macOS and Windows, therefore Docker Desktop runs them in a Linux VM. As a consequence, the container networks are not exposed to the host and you cannot reach the kind nodes via IP. You can work around this limitation by configuring [extra port mappings](https://kind.sigs.k8s.io/docs/user/configuration/#extra-port-mappings) though.

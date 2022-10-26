@@ -5,11 +5,10 @@ menu:
     parent: "design"
     identifier: "design-principles"
     weight: 1
+toc: true
+description: |-
+  While developing kind the following principles should be considered.
 ---
-# Principles
-
-While developing kind the following principles should be considered.
-
 ## Degrade Gracefully
 
 As much as possible kind should not fail, because it is to be used for testing.
@@ -97,7 +96,7 @@ the container filesystem, and processes in the container. The cluster itself
 stores all state. No external state stores are used and the only stateful
 process is the container runtime. kind does not itself store or manage state.
 
-This simplifes a lot of problems and eases portability, while forcing cluster
+This simplifies a lot of problems and eases portability, while forcing cluster
 interactions to be consistent.
 
 ## Consider Automation
@@ -116,6 +115,6 @@ Automated usage should be considered for all features.
 [k8s.io/apimachinery]: https://github.com/kubernetes/apimachinery
 [Kubernetes Deprecation Policy]: https://kubernetes.io/docs/reference/using-api/deprecation-policy/
 [API Conventions]: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
-[pkg/cluster]: https://github.com/kubernetes-sigs/kind/tree/master/pkg/cluster
+[pkg/cluster]: https://github.com/kubernetes-sigs/kind/tree/main/pkg/cluster
 [k8s.io/utils]: https://github.com/kubernetes/utils
 [k8s.io/code-generator]: https://github.com/kubernetes/code-generator

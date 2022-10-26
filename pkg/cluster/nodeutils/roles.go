@@ -42,6 +42,22 @@ func SelectNodesByRole(allNodes []nodes.Node, role string) ([]nodes.Node, error)
 	return out, nil
 }
 
+// InternalNodes returns the list of container IDs for the "nodes" in the cluster
+// that are ~Kubernetes nodes, as opposed to e.g. the external loadbalancer for HA
+func InternalNodes(allNodes []nodes.Node) ([]nodes.Node, error) {
+	selectedNodes := []nodes.Node{}
+	for _, node := range allNodes {
+		nodeRole, err := node.Role()
+		if err != nil {
+			return nil, err
+		}
+		if nodeRole == constants.WorkerNodeRoleValue || nodeRole == constants.ControlPlaneNodeRoleValue {
+			selectedNodes = append(selectedNodes, node)
+		}
+	}
+	return selectedNodes, nil
+}
+
 // ExternalLoadBalancerNode returns a node handle for the external control plane
 // loadbalancer node or nil if there isn't one
 func ExternalLoadBalancerNode(allNodes []nodes.Node) (nodes.Node, error) {
@@ -66,6 +82,9 @@ func ExternalLoadBalancerNode(allNodes []nodes.Node) (nodes.Node, error) {
 	return loadBalancerNodes[0], nil
 }
 
+// APIServerEndpointNode selects the node from allNodes which hosts the API Server endpoint
+// This should be the control plane node if there is one control plane node, or a LoadBalancer otherwise.
+// It returns an error if the node list is invalid (E.G. two control planes and no load balancer)
 func APIServerEndpointNode(allNodes []nodes.Node) (nodes.Node, error) {
 	if n, err := ExternalLoadBalancerNode(allNodes); err != nil {
 		return nil, errors.Wrap(err, "failed to find api-server endpoint node")
