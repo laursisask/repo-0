@@ -7,4 +7,8 @@
 charts/.DS_Store
 =======
 .vscode
+<<<<<<< HEAD
 >>>>>>> 04689721 ([kube-prometheus-stack] Update Prometheus to v2.39.0 (#2524))
+=======
+.DS_Store
+>>>>>>> 9926e5de (use registry.k8s.io (#2926))
