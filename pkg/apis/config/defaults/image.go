@@ -18,4 +18,4 @@ limitations under the License.
 package defaults
 
 // Image is the default for the Config.Image field, aka the default node image.
-const Image = "docker.io/kindest/node:v1.21.14@sha256:03ec1b55e8d197f2766fa908725d89d952272be56b8a39b41e4f423e9180ead8"
+const Image = "docker.io/kindest/node:v1.23.17@sha256:14d0a9a892b943866d7e6be119a06871291c517d279aedb816a4b4bc0ec0a5b3"

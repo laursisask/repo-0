@@ -18,7 +18,6 @@ package nodeimage
 
 import (
 	"fmt"
-	"io"
 	"math/rand"
 	"os"
 	"path"
@@ -35,6 +34,15 @@ import (
 	"sigs.k8s.io/kind/pkg/internal/version"
 )
 
+const (
+	// httpProxy is the HTTP_PROXY environment variable key
+	httpProxy = "HTTP_PROXY"
+	// httpsProxy is the HTTPS_PROXY environment variable key
+	httpsProxy = "HTTPS_PROXY"
+	// noProxy is the NO_PROXY environment variable key
+	noProxy = "NO_PROXY"
+)
+
 // buildContext is used to build the kind node image, and contains
 // build configuration
 type buildContext struct {
@@ -48,10 +56,10 @@ type buildContext struct {
 	builder kube.Builder
 }
 
-// Build builds the cluster node image, the sourcedir must be set on
+// Build builds the cluster node image, the source dir must be set on
 // the buildContext
 func (c *buildContext) Build() (err error) {
-	// ensure kubernetes build is up to date first
+	// ensure kubernetes build is up-to-date first
 	c.logger.V(0).Info("Starting to build Kubernetes")
 	bits, err := c.builder.Build()
 	if err != nil {
@@ -60,17 +68,17 @@ func (c *buildContext) Build() (err error) {
 	}
 	c.logger.V(0).Info("Finished building Kubernetes")
 
-	// then the perform the actual docker image build
+	// then perform the actual docker image build
 	c.logger.V(0).Info("Building node image ...")
 	return c.buildImage(bits)
 }
 
 func (c *buildContext) buildImage(bits kube.Bits) error {
 	// create build container
-	// NOTE: we are using docker run + docker commit so we can install
+	// NOTE: we are using docker run + docker commit, so we can install
 	// debian packages without permanently copying them into the image.
 	// if docker gets proper squash support, we can rm them instead
-	// This also allows the KubeBit implementations to perform programmatic
+	// This also allows the KubeBit implementations to programmatically
 	// install in the image
 	containerID, err := c.createBuildContainer()
 	cmder := docker.ContainerCmder(containerID)
@@ -87,12 +95,6 @@ func (c *buildContext) buildImage(bits kube.Bits) error {
 	}
 
 	c.logger.V(0).Info("Building in container: " + containerID)
-
-	// make artifacts directory
-	if err = cmder.Command("mkdir", "/kind/").Run(); err != nil {
-		c.logger.Errorf("Image build Failed! Failed to make directory %v", err)
-		return err
-	}
 
 	// copy artifacts in
 	for _, binary := range bits.BinaryPaths() {
@@ -134,6 +136,9 @@ func (c *buildContext) buildImage(bits kube.Bits) error {
 		"docker", "commit",
 		// we need to put this back after changing it when running the image
 		"--change", `ENTRYPOINT [ "/usr/local/bin/entrypoint", "/sbin/init" ]`,
+		// remove proxy settings since they're for the building process
+		// and should not be carried with the built image
+		"--change", `ENV HTTP_PROXY="" HTTPS_PROXY="" NO_PROXY=""`,
 		containerID, c.image,
 	).Run(); err != nil {
 		c.logger.Errorf("Image build Failed! Failed to save image: %v", err)
@@ -144,7 +149,7 @@ func (c *buildContext) buildImage(bits kube.Bits) error {
 	return nil
 }
 
-// returns a set of image tags that will be sideloaded
+// returns a set of image tags that will be side-loaded
 func (c *buildContext) getBuiltImages(bits kube.Bits) (sets.String, error) {
 	images := sets.NewString()
 	for _, path := range bits.ImagePaths() {
@@ -184,13 +189,16 @@ func (c *buildContext) prePullImagesAndWriteManifests(bits kube.Bits, parsedVers
 	// correct set of built tags using the same logic we will use to rewrite
 	// the tags as we load the archives
 	fixedImages := sets.NewString()
+	fixedImagesMap := make(map[string]string, builtImages.Len()) // key: original images, value: fixed images
 	for _, image := range builtImages.List() {
 		registry, tag, err := docker.SplitImage(image)
 		if err != nil {
 			return nil, err
 		}
 		registry = fixRepository(registry)
-		fixedImages.Insert(registry + ":" + tag)
+		fixedImage := registry + ":" + tag
+		fixedImages.Insert(fixedImage)
+		fixedImagesMap[image] = fixedImage
 	}
 	builtImages = fixedImages
 	c.logger.V(1).Info("Detected built images: " + strings.Join(builtImages.List(), ", "))
@@ -236,12 +244,7 @@ func (c *buildContext) prePullImagesAndWriteManifests(bits kube.Bits, parsedVers
 	requiredImages = append(requiredImages, defaultCNIImages...)
 
 	// write the default Storage manifest
-	// in < 1.14 we need to use beta labels
-	storageManifest := defaultStorageManifest
-	if parsedVersion.LessThan(version.MustParseSemantic("v1.14.0")) {
-		storageManifest = strings.ReplaceAll(storageManifest, "kubernetes.io/os", "beta.kubernetes.io/os")
-	}
-	if err := createFile(cmder, defaultStorageManifestLocation, storageManifest); err != nil {
+	if err := createFile(cmder, defaultStorageManifestLocation, defaultStorageManifest); err != nil {
 		c.logger.Errorf("Image build Failed! Failed write default Storage Manifest: %v", err)
 		return nil, err
 	}
@@ -267,17 +270,11 @@ func (c *buildContext) prePullImagesAndWriteManifests(bits kube.Bits, parsedVers
 		image := image // https://golang.org/doc/faq#closures_and_goroutines
 		fns = append(fns, func() error {
 			if !builtImages.Has(image) {
-				/*
-					TODO: show errors when we have real errors. See comments in
-					importer implementation
-					err := importer.Pull(image, dockerBuildOsAndArch(c.arch))
-					if err != nil {
-						c.logger.Warnf("Failed to pull %s with error: %v", image, err)
-						runE := exec.RunErrorForError(err)
-						c.logger.Warn(string(runE.Output))
-					}
-				*/
-				_ = importer.Pull(image, dockerBuildOsAndArch(c.arch))
+				if err = importer.Pull(image, dockerBuildOsAndArch(c.arch)); err != nil {
+					c.logger.Warnf("Failed to pull %s with error: %v", image, err)
+					runE := exec.RunErrorForError(err)
+					c.logger.Warn(string(runE.Output))
+				}
 			}
 			return nil
 		})
@@ -296,14 +293,8 @@ func (c *buildContext) prePullImagesAndWriteManifests(bits kube.Bits, parsedVers
 				return err
 			}
 			defer f.Close()
-			//return importer.LoadCommand().SetStdout(os.Stdout).SetStderr(os.Stderr).SetStdin(f).Run()
-			// we will rewrite / correct the tags as we load the image
-			if err := exec.RunWithStdinWriter(importer.LoadCommand().SetStdout(os.Stdout).SetStderr(os.Stdout), func(w io.Writer) error {
-				return docker.EditArchive(f, w, fixRepository, c.arch)
-			}); err != nil {
-				return err
-			}
-			return nil
+			return importer.LoadCommand().SetStdout(os.Stdout).SetStderr(os.Stderr).SetStdin(f).Run()
+			// we will rewrite / correct the tags in tagFns below
 		})
 	}
 
@@ -313,27 +304,56 @@ func (c *buildContext) prePullImagesAndWriteManifests(bits kube.Bits, parsedVers
 		return nil, err
 	}
 
+	// create a plan of image re-tagging
+	tagFns := []func() error{}
+	for unfixed, fixed := range fixedImagesMap {
+		unfixed, fixed := unfixed, fixed // capture loop var
+		if unfixed != fixed {
+			tagFns = append(tagFns, func() error {
+				return importer.Tag(unfixed, fixed)
+			})
+		}
+	}
+
+	// run all image re-tragging concurrently until one fails or all succeed
+	if err := errors.UntilErrorConcurrent(tagFns); err != nil {
+		c.logger.Errorf("Image build Failed! Failed to re-tag images %v", err)
+		return nil, err
+	}
+
 	return importer.ListImported()
 }
 
 func (c *buildContext) createBuildContainer() (id string, err error) {
 	// attempt to explicitly pull the image if it doesn't exist locally
-	// we don't care if this errors, we'll still try to run which also pulls
+	// we don't care if this returns error, we'll still try to run which also pulls
 	_ = docker.Pull(c.logger, c.baseImage, dockerBuildOsAndArch(c.arch), 4)
 	// this should be good enough: a specific prefix, the current unix time,
 	// and a little random bits in case we have multiple builds simultaneously
 	random := rand.New(rand.NewSource(time.Now().UnixNano())).Int31()
 	id = fmt.Sprintf("kind-build-%d-%d", time.Now().UTC().Unix(), random)
+	runArgs := []string{
+		"-d", // make the client exit while the container continues to run
+		// the container should hang forever, so we can exec in it
+		"--entrypoint=sleep",
+		"--name=" + id,
+		"--platform=" + dockerBuildOsAndArch(c.arch),
+		"--security-opt", "seccomp=unconfined", // ignore seccomp
+	}
+	// pass proxy settings from environment variables to the building container
+	// to make them work during the building process
+	for _, name := range []string{httpProxy, httpsProxy, noProxy} {
+		val := os.Getenv(name)
+		if val == "" {
+			val = os.Getenv(strings.ToLower(name))
+		}
+		if val != "" {
+			runArgs = append(runArgs, "--env", name+"="+val)
+		}
+	}
 	err = docker.Run(
 		c.baseImage,
-		[]string{
-			"-d", // make the client exit while the container continues to run
-			// the container should hang forever so we can exec in it
-			"--entrypoint=sleep",
-			"--name=" + id,
-			"--platform=" + dockerBuildOsAndArch(c.arch),
-			"--security-opt", "seccomp=unconfined", // ignore seccomp
-		},
+		runArgs,
 		[]string{
 			"infinity", // sleep infinitely to keep the container around
 		},
