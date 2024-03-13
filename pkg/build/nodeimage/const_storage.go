@@ -25,8 +25,8 @@ NOTE: we have customized it in the following ways:
 - install as the default storage class
 */
 
-const storageProvisionerImage = "docker.io/kindest/local-path-provisioner:v0.0.22-kind.0"
-const storageHelperImage = "docker.io/kindest/local-path-helper:v20220607-9a4d8d2a"
+const storageProvisionerImage = "docker.io/kindest/local-path-provisioner:v20240202-8f1494ea"
+const storageHelperImage = "docker.io/kindest/local-path-helper:v20230510-486859a6"
 
 // image we need to preload
 var defaultStorageImages = []string{storageProvisionerImage, storageHelperImage}

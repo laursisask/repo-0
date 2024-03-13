@@ -14,10 +14,9 @@ Starting with kind 0.11.0, [Rootless Docker](https://docs.docker.com/go/rootless
 
 ## Host requirements
 The host needs to be running with cgroup v2.
-
-cgroup v2 is enabled by default on Fedora.
-On other distros, cgroup v2 can be typically enabled by adding `GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1"` to `/etc/default/grub` and
-running `sudo update-grub`.
+Make sure that the result of the `docker info` command contains `Cgroup Version: 2`.
+If it prints `Cgroup Version: 1`, try adding `GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1"` to `/etc/default/grub` and
+running `sudo update-grub` to enable cgroup v2.
 
 Also, depending on the host configuration, the following steps might be needed:
 
@@ -33,6 +32,15 @@ Also, depending on the host configuration, the following steps might be needed:
   high"](https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/ZMKLS7SHMRJLJ57NZCYPBAQ3UOYULV65/).
   Beware that changing this configuration may affect system
   performance.)
+
+  Please note that:
+
+  - `/etc/systemd/system/user@.service.d/` directory needs to be created if not already present on your host
+  - If using Docker and it was already running when this step was done, a restart is needed for the changes to take
+    effect
+      {{< codeFromInline lang="bash" >}}
+      systemctl --user restart docker
+      {{< /codeFromInline >}}
 
 - Create `/etc/modules-load.d/iptables.conf` with the following content:
 
@@ -65,6 +73,11 @@ $ kind create cluster
 To create a kind cluster with Rootless Podman, just run:
 ```console
 $ KIND_EXPERIMENTAL_PROVIDER=podman kind create cluster
+```
+
+On some distributions, you might need to use systemd-run to start kind into its own cgroup scope:
+```console
+$ systemd-run --scope --user kind create cluster
 ```
 
 ## Tips

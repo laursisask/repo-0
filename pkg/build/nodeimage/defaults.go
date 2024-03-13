@@ -20,4 +20,6 @@ package nodeimage
 const DefaultImage = "kindest/node:latest"
 
 // DefaultBaseImage is the default base image used
-const DefaultBaseImage = "docker.io/kindest/base:v20220623-3a47e971"
+// TODO: come up with a reasonable solution to digest pinning
+// https://github.com/moby/moby/issues/43188
+const DefaultBaseImage = "docker.io/kindest/base:v20240212-c4cadcab"

@@ -33,9 +33,9 @@ description: |-
 * [Pod Errors Due to "too many open files"](#pod-errors-due-to-too-many-open-files) (likely [inotify] limits which are not namespaced)
 * [Docker Permission Denied](#docker-permission-denied) (ensure you have permission to use docker)
 * [Windows Containers](#windows-containers) (unsupported / infeasible)
-* [Non-AMD64 Architectures](#nonamd64-architectures) (images not pre-built yet)
+* [Unsupported Architectures](#unsupported-architectures) (images not pre-built yet)
 * [Unable to Pull Images](#unable-to-pull-images) (various)
-* [Chrome OS](#chrome-os) (unsupported)
+* [Chrome OS](#chrome-os) (needs KubeletInUserNamespace)
 * [AppArmor](#apparmor) (may break things, consider disabling)
 * [IPv6 Port Forwarding](#ipv6-port-forwarding) (docker doesn't seem to implement this correctly)
 * [Couldn't find an alternative telinit implementation to spawn](#docker-init-daemon-config)
@@ -85,6 +85,10 @@ brew link --overwrite kubernetes-cli
 [for-mac#3663]: https://github.com/docker/for-mac/issues/3663
 
 ## Older Docker Installations
+
+> **NOTE**: This only applies to kind version v0.15.0 and back: Kubernetes
+> before 1.15 will not be supported in KIND v0.16.0 and versions below 1.13
+> were no longer supported in kind v0.9.0.
 
 `kind` is known to have issues with Kubernetes 1.13 or lower when using Docker versions:
 
@@ -261,10 +265,10 @@ This has to to with `/sbin/init` not running as process id 1.
 
 Windows containers are not like Linux containers and do not support running docker in docker and therefore cannot support kind.
 
-## Non-AMD64 Architectures
+## Unsupported Architectures
 
-KIND does not currently ship pre-built images for non-amd64 architectures.
-In the future we may, but currently demand has been low and the cost to build
+KIND currently ships pre-built images for AMD64 and ARM64 architectures.
+In the future we may support others, but currently demand has been low and the cost to build
 has been high.
 
 To use kind on other architectures, you need to first build a base image
@@ -290,11 +294,22 @@ Re-run the command this time adding the `--name my-cluster-name` param:
 
 ## Chrome OS
 
-Kubernetes does not work in the Chrome OS Linux sandbox.
+To run Kubernetes inside Chrome OS the LXC container must allow nesting. In Crosh session (ctrl+alt+t):
 
-Please see the upstream issue https://bugs.chromium.org/p/chromium/issues/detail?id=878034
+```
+crosh> vmc launch termina
+(termina) chronos@localhost ~ $ lxc config set penguin security.nesting true
+(termina) chronos@localhost ~ $ lxc restart penguin
+```
 
-For previous discussion see: https://github.com/kubernetes-sigs/kind/issues/763
+Then KIND cluster must use KubeletInUserNamespace feature gate (available since Kubernetes 1.22):
+
+```
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+featureGates:
+  KubeletInUserNamespace: true
+```
 
 ## AppArmor
 

@@ -24,7 +24,14 @@ set -o errexit -o nounset -o xtrace
 # FOCUS: ginkgo focus regex
 # GA_ONLY: true  - limit to GA APIs/features as much as possible
 #          false - (default) APIs and features left at defaults
-# 
+# FEATURE_GATES:
+#          JSON or YAML encoding of a string/bool map: {"FeatureGateA": true, "FeatureGateB": false}
+#          Enables or disables feature gates in the entire cluster.
+#          Cannot be used when GA_ONLY=true.
+# RUNTIME_CONFIG:
+#          JSON or YAML encoding of a string/string (!) map: {"apia.example.com/v1alpha1": "true", "apib.example.com/v1beta1": "false"}
+#          Enables API groups in the apiserver via --runtime-config.
+#          Cannot be used when GA_ONLY=true.
 
 # cleanup logic for cleanup on exit
 CLEANED_UP=false
@@ -46,6 +53,7 @@ cleanup() {
 }
 
 # setup signal handlers
+# shellcheck disable=SC2317 # this is not unreachable code
 signal_handler() {
   if [ -n "${GINKGO_PID:-}" ]; then
     kill -TERM "$GINKGO_PID" || true
@@ -65,6 +73,9 @@ build() {
   fi
   # make sure we have e2e requirements
   make all WHAT="cmd/kubectl test/e2e/e2e.test ${GINKGO_SRC_DIR}"
+
+  # Ensure the built kubectl is used instead of system
+  export PATH="${PWD}/_output/bin:$PATH"
 }
 
 check_structured_log_support() {
@@ -106,33 +117,28 @@ create_cluster() {
       \"logging-format\": \"${KUBELET_LOG_FORMAT}\""
   fi
 
-  # JSON map injected into featureGates config
-  feature_gates="{}"
-  # --runtime-config argument value passed to the API server
-  runtime_config="{}"
+  # JSON or YAML map injected into featureGates config
+  feature_gates="${FEATURE_GATES:-{\}}"
+  # --runtime-config argument value passed to the API server, again as a map
+  runtime_config="${RUNTIME_CONFIG:-{\}}"
 
   case "${GA_ONLY:-false}" in
   false)
-    feature_gates="{}"
-    runtime_config="{}"
+    :
     ;;
   true)
-    case "${KUBE_VERSION}" in
-    v1.1[0-7].*)
-      echo "GA_ONLY=true is only supported on versions >= v1.18, got ${KUBE_VERSION}"
+    if [ "${feature_gates}" != "{}" ]; then
+      echo "GA_ONLY=true and FEATURE_GATES=${feature_gates} are mutually exclusive."
       exit 1
-      ;;
-    v1.18.*)
-      echo "Limiting to GA APIs and features (plus certificates.k8s.io/v1beta1 and RotateKubeletClientCertificate) for ${KUBE_VERSION}"
-      feature_gates='{"AllAlpha":false,"AllBeta":false,"RotateKubeletClientCertificate":true}'
-      runtime_config='{"api/alpha":"false", "api/beta":"false", "certificates.k8s.io/v1beta1":"true"}'
-      ;;
-    *)
-      echo "Limiting to GA APIs and features for ${KUBE_VERSION}"
-      feature_gates='{"AllAlpha":false,"AllBeta":false}'
-      runtime_config='{"api/alpha":"false", "api/beta":"false"}'
-      ;;
-    esac
+    fi
+    if [ "${runtime_config}" != "{}" ]; then
+      echo "GA_ONLY=true and RUNTIME_CONFIG=${runtime_config} are mutually exclusive."
+      exit 1
+    fi
+
+    echo "Limiting to GA APIs and features for ${KUBE_VERSION}"
+    feature_gates='{"AllAlpha":false,"AllBeta":false}'
+    runtime_config='{"api/alpha":"false", "api/beta":"false"}'
     ;;
   *)
     echo "\$GA_ONLY set to '${GA_ONLY}'; supported values are true and false (default)"
@@ -148,6 +154,9 @@ apiVersion: kind.x-k8s.io/v1alpha4
 networking:
   ipFamily: ${IP_FAMILY:-ipv4}
   kubeProxyMode: ${KUBE_PROXY_MODE:-iptables}
+  # don't pass through host search paths
+  # TODO: possibly a reasonable default in the future for kind ...
+  dnsSearch: []
 nodes:
 - role: control-plane
 - role: worker
@@ -190,6 +199,9 @@ EOF
     --wait=1m \
     -v=3 \
     "--config=${ARTIFACTS}/kind-config.yaml"
+
+  # debug cluster version
+  kubectl version
 
   # Patch kube-proxy to set the verbosity level
   kubectl patch -n kube-system daemonset/kube-proxy \

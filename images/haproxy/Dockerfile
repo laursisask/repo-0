@@ -15,7 +15,7 @@
 # This image is a haproxy image + minimal config so the container will not exit
 # while we rewrite the config at runtime and signal haproxy to reload.
 
-ARG BASE="registry.k8s.io/build-image/debian-base:bullseye-v1.3.0"
+ARG BASE="registry.k8s.io/build-image/debian-base:bullseye-v1.4.3"
 FROM ${BASE} as build
 
 # NOTE: copyrights.tar.gz is a quirk of Kubernetes's debian-base image
@@ -62,4 +62,4 @@ COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
 
 # below roughly matches the standard haproxy image
 STOPSIGNAL SIGUSR1
-ENTRYPOINT ["haproxy", "-sf", "7", "-W", "-db", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
+ENTRYPOINT ["haproxy", "-W", "-db", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]

@@ -1,5 +1,6 @@
 {
   "spec": {
+    "replicas": 1,
     "template": {
       "spec": {
         "containers": [
@@ -9,12 +10,12 @@
               {
                 "containerPort": 8000,
                 "hostPort": 80,
-                "name": "proxy",
+                "name": "proxy-tcp",
                 "protocol": "TCP"
               },
               {
                 "containerPort": 8443,
-                "hostPort": 43,
+                "hostPort": 443,
                 "name": "proxy-ssl",
                 "protocol": "TCP"
               }

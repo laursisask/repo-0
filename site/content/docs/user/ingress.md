@@ -21,7 +21,6 @@ by the ingress controller `nodeSelector`.
 
 1. [Create a cluster](#create-cluster)
 2. Deploy an Ingress controller, the following ingress controllers are known to work:
-    - [Ambassador](#ambassador)
     - [Contour](#contour)
     - [Ingress Kong](#ingress-kong)
     - [Ingress NGINX](#ingress-nginx)
@@ -55,37 +54,6 @@ nodes:
 EOF
 {{< /codeFromInline >}}
 
-### Ambassador
-
-[Ambassador](https://www.getambassador.io/) will be installed with the help of
-the [Ambassador operator](https://www.getambassador.io/docs/latest/topics/install/aes-operator/).
-
-First install the CRDs with
-
-{{< codeFromInline lang="bash" >}}
-kubectl apply -f https://github.com/datawire/ambassador-operator/releases/latest/download/ambassador-operator-crds.yaml
-{{< /codeFromInline >}}
-
-Now install the kind-specific manifest for installing Ambassador with the operator
-in the `ambassador` namespace:
-
-{{< codeFromInline lang="bash" >}}
-kubectl apply -n ambassador -f https://github.com/datawire/ambassador-operator/releases/latest/download/ambassador-operator-kind.yaml
-kubectl wait --timeout=180s -n ambassador --for=condition=deployed ambassadorinstallations/ambassador
-{{< /codeFromInline >}}
-
-Ambassador is now ready for use. You can try the example in [Using Ingress](#using-ingress) at this moment,
-but Ambassador will not automatically load the `Ingress` defined there. `Ingress` resources must include
-the annotation `kubernetes.io/ingress.class: ambassador` for being recognized by Ambassador (otherwise they are just ignored).
-So once the example has been loaded you can add this annotation with:
-
-{{< codeFromInline lang="bash" >}}
-kubectl annotate ingress example-ingress kubernetes.io/ingress.class=ambassador
-{{< /codeFromInline >}}
-
-Ambassador should be exposing your Ingress now. Please find additional documentation on
-Ambassador [here](https://www.getambassador.io/docs/latest/).
-
 ### Contour
 
 Deploy [Contour components](https://projectcontour.io/quickstart/contour.yaml).
@@ -108,8 +76,10 @@ Apply it by running:
 kubectl patch daemonsets -n projectcontour envoy -p '{{< minify file="static/examples/ingress/contour/patch.json" >}}'
 {{< /codeFromInline >}}
 
-Now the Contour is all setup to be used.
-Refer to [Using Ingress](#using-ingress) for a basic example usage.
+Now Contour is ready to be used.
+Refer to Contour's [Getting Started](https://projectcontour.io/getting-started/#test-it-out) documentation for a basic usage example.
+
+Note, the example in [Using Ingress](#using-ingress) will not work with Contour because it uses nginx-specific annotations on the Ingress resource.
 
 Additional information about Contour can be found at: [projectcontour.io](https://projectcontour.io)
 
@@ -130,7 +100,7 @@ Apply kind specific patches to forward the `hostPorts` to the ingress controller
 Apply it by running:
 
 {{< codeFromInline lang="bash" >}}
-kubectl patch deployment -n kong ingress-kong -p '{{< minify file="static/examples/ingress/kong/deployment.patch.json" >}}'
+kubectl patch deployment -n kong proxy-kong -p '{{< minify file="static/examples/ingress/kong/deployment.patch.json" >}}'
 {{< /codeFromInline >}}
 
 Apply kind specific patch to change service type to `NodePort`:
@@ -184,6 +154,8 @@ Refer [Using Ingress](#using-ingress) for a basic example usage.
 The following example creates simple http-echo services
 and an Ingress object to route to these services.
 
+Note, this example uses an nginx-specific Ingress annotation which may not be supported by all Ingress implementations.
+
 ```yaml
 {{% readFile "static/examples/ingress/usage.yaml" %}}
 ```
@@ -197,8 +169,8 @@ kubectl apply -f {{< absURL "examples/ingress/usage.yaml" >}}
 Now verify that the ingress works
 
 {{< codeFromInline lang="bash" >}}
-# should output "foo"
-curl localhost/foo
-# should output "bar"
-curl localhost/bar
+# should output "foo-app"
+curl localhost/foo/hostname
+# should output "bar-app"
+curl localhost/bar/hostname
 {{< /codeFromInline >}}
