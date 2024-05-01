@@ -30,8 +30,9 @@ jobs:
     steps:
       - name: Collect Metrics
         id: collect-gha-metrics
-        uses: smartcontractkit/push-gha-metrics-action@v2.1.0
+        uses: smartcontractkit/push-gha-metrics-action@dea9b546553cb4ca936607c2267a09c004e4ab3f # v3.0.0
         with:
+          id: update-version
           basic-auth: ${{ secrets.GRAFANA_INTERNAL_BASIC_AUTH }}
           hostname: ${{ secrets.GRAFANA_INTERNAL_HOST }}
           org-id: ${{ secrets.GRAFANA_INTERNAL_TENANT_ID}}
@@ -39,7 +40,7 @@ jobs:
         continue-on-error: true
 
       - name: Checkout the repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
 
       - name: Update version
         env:
@@ -47,7 +48,7 @@ jobs:
         run: ./sync-from-source/sync.sh
 
       - name: Open PR
-        uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04 # v4.2.3
+        uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e # v6.0.5
         with:
           title: Update push-gha-metrics-action
           branch: chore/update-push-gha-metrics-action
@@ -66,8 +67,9 @@ jobs:
     steps:
       - name: Collect Metrics
         id: collect-gha-metrics
-        uses: smartcontractkit/push-gha-metrics-action@v2.1.0
+        uses: smartcontractkit/push-gha-metrics-action@dea9b546553cb4ca936607c2267a09c004e4ab3f # v3.0.0
         with:
+          id: update-snapshot
           basic-auth: ${{ secrets.GRAFANA_INTERNAL_BASIC_AUTH }}
           hostname: ${{ secrets.GRAFANA_INTERNAL_HOST }}
           org-id: ${{ secrets.GRAFANA_INTERNAL_TENANT_ID}}
@@ -75,7 +77,7 @@ jobs:
         continue-on-error: true
 
       - name: Checkout the repo
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           ref: snapshot
 
@@ -85,7 +87,7 @@ jobs:
         run: ./sync-from-source/sync.sh --snapshot
 
       - name: Commit and push files
-        uses: planetscale/ghcommit-action@0e97298607962b704612dd4b7677600fdc363a21 # v0.1.17
+        uses: planetscale/ghcommit-action@21a8cda29f55e5cc2cdae0cdbdd08e38dd148c25 # v0.1.37
         with:
           commit_message: "Sync with push-gha-metrics-action-source@main"
           repo: ${{ github.repository }}
