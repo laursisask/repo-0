@@ -64,6 +64,10 @@ inputs:
     description: |
       Json test result file to attach to the output logs, available types: go
       example: {"testType":"go","filePath":"./go_test_results_path.json"}
+  test-results-batch-split-size:
+    required: false
+    default: "524288"
+    description: The byte size to break apart metric logs into. Defaults to 512 KB (1 * 1024 * 512)
   additional-information:
     required: false
     description: |
