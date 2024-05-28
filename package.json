@@ -1,6 +1,6 @@
 {
   "name": "push-gha-metrics-action",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A github action for pushing github actions metrics as loki logs",
   "main": "dist/index.js",
   "scripts": {
