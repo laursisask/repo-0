@@ -1,103 +1,131 @@
-# Keeper Security's Linux Keyring Utility
+# Linux Keyring Utility
 
-This utility interacts with the native Linux APIs to store and retrieve secrets from the Keyring using [Secret Service](https://specifications.freedesktop.org/secret-service/latest/).
+This utility interacts with the native Linux APIs to store and retrieve secrets from the Keyring using [Secret Service](https://specifications.freedesktop.org/secret-service/latest/). It can be used by any integration, plugin, or code base to store and retrieve credentials, secrets, and passwords in the Linux Keyring simply and natively.
 
-While initially developed to help Keeper secure KSM configs, this utility can be used by any integration, plugin, or code base, to store and retrieve credentials, secrets, and passwords in the Linux Keyring simply and natively.
+To use this utility, you can deploy the pre-built binary from the releases page, or by importing it into your code base. Both use cases are covered below.
 
-This utility can be used using the pre-build binary from the releases page, or by importing it into your code base. Both use cases are covered below.
+For Windows implementations, see the [Windows Credential Utility](https://github.com/Keeper-Security/windows-credential-utility).
 
-## Using the Executable 
+## Details
 
-Download the latest version from the releases page and optionally add it to PATH to get started.
+The Linux Keyring Utility gets and sets _secrets_ in a Linux
+[Keyring](http://man7.org/linux/man-pages/man7/keyrings.7.html) using the
+[D-Bus](https://dbus.freedesktop.org/doc/dbus-tutorial.html)
+[Secret Service](https://specifications.freedesktop.org/secret-service/latest/).
 
-### Usage
+It has been tested with
+[GNOME Keyring](https://wiki.gnome.org/Projects/GnomeKeyring/) and
+[KDE Wallet Manager](https://userbase.kde.org/KDE_Wallet_Manager).
+It _should_ work with any implementation of the D-Bus Secrets Service.
 
-The executable supports two commands:
+It includes a simple get/set/del(ete) CLI implemented with
+[Cobra](https://cobra.dev).
 
-1. `set`
-2. `get`
+## Usage
 
-Both commands require an application `name` (i.e. the name of the secret in / to be stored in the Keyring) as the first argument.
+The Go Language API has offers `Get()`, `Set()` and `Delete()` methods.
+The first two accept and return `string` data.
 
-### `set`
+### Go API
 
-`set` requires a second argument of the secret to be stored. This can be either a:
+The `secret_collection` API is a wrapper object for the function in the `dbus_secrets`.
+It unifies the D-Bus _Connection_, _Session_ and _Collection Service_ objects.
 
-1. BASE64 string
-2. JSON string
-3. Path to an existing JSON file
+#### Example (get)
 
-When the secret is saved to the Keyring it is first encoded into a BASE64 format (if not already a BASE64 string). This standardizes the format for both consistent storage and to make it easier to consume by Keeper integrations and products. 
+```go
+package main
 
-> If you need a support for a different format, please submit a feature request. We'd be happy to extend this to support other use cases.
+import (
+    "os"
+    sc "github.com/Keeper-Security/linux-keyring-utility/pkg/secret_collection"
+)
 
-### `get`
+func doit() {
+    if collection, err := sc.DefaultCollection(); err == nil {
+        if err := collection.Unlock(); err == nil {
+            if secret, err := collection.Get("myapp", "mysecret"); err == nil {
+                print(string(secret))
+                os.Exit(0)
+            }
+        }
+    }
+    os.Exit(1)
+}
+```
 
-`get` returns the stored BASE64 encoded config to `stdout` and exits with a `0` exit code. The requesting integration can capture the output for consumption. Any errors encountered retrieving the config will return a `non-zero` exit code and write to `stderr`.
+The `.DefaultCollection()` returns whatever collection the _default_ _alias_ refers to.
+It will generate an error if the _default_ alias is not set.
+It usually points to the _login_ keyring.
+Most Linux Keyring interfaces allow the user to set it.
 
-### Example
+The `.NamedCollection(string)` method provides access to collections by name.
+
+#### Example (set)
+
+Set takes the data as a parameter and only returns an error.
+
+```go
+if err := collection.Set("myapp", "mysecret", "mysecretdata"); err == nil {
+    // success
+}
+```
+
+Set accepts _any_ string as secret data.
+
+### Binary Interface (CLI)
+
+The Linux binary supports three subcommands:
+
+1. `get`
+2. `set`
+3. `del`
+
+_Get_ and _del_ require one parameter; name, which is the secret _Label_ in D-Bus API terms.
+
+_Del_ accepts one or more secret labels and deletes all of them.
+If it generates an error it will stop.
+
+_Set_ also requires the data as a _single_ string in the second parameter.
+For example, `set foo bar baz` will generate an error but `set foo 'bar baz'` will work.
+If the string is `-` then the string is read from standard input.
+
+#### Base64 encoding
+
+_Get_ and _set_ take a `-b` or `--base64` flag that handles base64 automatically.
+If used, _Set_ will encode the input before storing it and/or _get_ will decode it before printing.
+
+Note that calling `get -b` on a secret that is _not_ base64 encoded secret will generate an error.
+
+### CLI Examples
 
 ```shell
-# Save a secret
-lku set APPNAME eyJ1c2VybmFtZSI6ICJnb2xsdW0iLCAicGFzc3dvcmQiOiAiTXlQcmVjaW91cyJ9
-# or
-lku set APPNAME config.json
-
-# Retrieve a secret
-lku get APPNAME
-```
-
-## Using in Your Code
-
-You can install this utility into your code base using standard `go` commands:
-
-```bash
-go get -u github.com/Keeper-Security/linux-keyring-utility@latest
-```
-
-You can now include the `keyring` package in your application for easy keyring management:
-
-```go
-import (
-    //...
-    "github.com/Keeper-Security/linux-keyring-utility/pkg/keyring"
-)
-```
-
-### Usage
-
-### `set`
-
-The `Set()` function of the `SecretProvider` takes two arguments. The first is the name of the secret to be stored, which is usually an application name. The second is the secret itself. This should be either:
-
-1. A BASE64 string
-2. A JSON string
-3. A path to an existing JSON file
-
-When the secret is saved to the Keyring it is first encoded into a BASE64 format (if not already a BASE64 string). This standardizes the format for both consistent storage and to make it easier to consume by Keeper integrations and products.
-
-```go
-provider := keyring.SecretProvider{}
-
-err := provider.Set("MY_APP_NAME", "eyJ1c2VybmFtZSI6InVzZXIiLCAicGFzc3dvcmQiOiJwYXNzIn0=")
-if err != nil {
-    fmt.Println("Unable to set secret:", err)
+# set has no output
+lkru set root_cred '{
+    "username": "root"
+    "password": "rand0m."
+}'
+# get prints (to stdout) whatever was set
+lku get root_cred
+{
+    "username": "root"
+    "password": "rand0m."
 }
-```
-
-### `get`
-
-The `Get()` function of the `SecretProvider` returns the stored BASE64 encoded secret. Pass the name of the secret/application to retrieve the stored value.
-
-```go
-provider := keyring.SecretProvider{}
-
-secret, err := provider.Get("MY_APP_NAME")
-if err != nil {
-    fmt.Println("Unable to get secret:", err)
-}
-
-fmt.Println(secret) // Prints the BASE64 encoded secret
+lkru set -b root_cred2 '{"username": "gollum", "password": "MyPrecious"}'
+lkru get root_cred2
+eyJ1c2VybmFtZSI6ICJnb2xsdW0iLCAicGFzc3dvcmQiOiAiTXlQcmVjaW91cyJ9
+lkru get -b root_cred2
+{"username": "gollum", "password": "MyPrecious"}
+cat ./good_cred.json | lkru set -b root_cred3 -
+lkru get root_cred3
+ewogICJ1c2VybmFtZSI6ICJhZGFtIiwKICAicGFzc3dvcmQiOiAicGFzc3dvcmQxMjMuIgp9
+# errors go to stderr
+lkru get root_cred4 2>/dev/null
+lkru get root_cred4
+Unable to get secret 'root_cred4': Unable to retrieve secret 'root_cred4' for application 'lkru' from collection '/org/freedesktop/secrets/aliases/default': org.freedesktop.Secret.Collection.SearchItems returned nothing
+# most errors are obvious
+lkru -c missing_wallet get root_cred
+Error unlocking the keyring: Unable to unlock collection '/org/freedesktop/secrets/collection/missing_wallet': Object /org/freedesktop/secrets/collection/missing_wallet does not exist
 ```
 
 ## Contributing

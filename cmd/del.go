@@ -9,12 +9,12 @@ import (
 )
 
 var delCmd = &cobra.Command{
-	Use:   "del",
-	Args:  cobra.ExactArgs(1),
-	Short: "Delete a secret from the Linux keyring.",
-	Long:  `Delete a secret from the Linux keyring by it's label.`,
+	Use:   "del [flags] <label> [label...]",
+	Args:  cobra.MinimumNArgs(1),
+	Short: "Delete secret(s) from the Linux keyring.",
+	Long:  `Delete one or more secrets from the Linux keyring by label.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		collection, err := secrets.DefaultCollection()
+		collection, err := secrets.Collection(collection)
 		if err != nil {
 			fmt.Fprintf(cmd.ErrOrStderr(), "Unable to get the default keyring: %v\n", err)
 			os.Exit(1)
@@ -23,9 +23,11 @@ var delCmd = &cobra.Command{
 			fmt.Fprintf(cmd.ErrOrStderr(), "Error unlocking the keyring: %v\n", err)
 			os.Exit(1)
 		} else {
-			if err := collection.Delete(rootCmd.Name(), args[0]); err != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "Unable to delete secret '%s': %v\n", args[0], err)
-				os.Exit(1)
+			for _, label := range args {
+				if err := collection.Delete(application, label); err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "Unable to delete secret '%s': %v\n", args[0], err)
+					os.Exit(1)
+				}
 			}
 		}
 	},

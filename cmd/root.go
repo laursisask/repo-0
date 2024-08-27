@@ -7,10 +7,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var application = "lkru"
+var collection = "login"
+var use_base64 = false
+
 var rootCmd = &cobra.Command{
-	Use:   "kkru",
-	Short: "Keeper Keyring Utility",
-	Long:  `The Keeper keyring Utility manages secrets using the Linux keychain via the D-Bus Secrets API.`,
+	Use:   "lkru [flags] <get|set|del>",
+	Short: "Linux Keyring Utility (lkru)",
+	Long: `lkru is a Linux Keyring Utility.
+It manages secrets in a Linux Keyring using the collection interface of the D-Bus Secrets API.
+It has a trivial set, get, and delete interface where set always creates and overwrites.
+There is no list or search functionality.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			cmd.Help()
@@ -27,6 +35,10 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().StringVarP(&application, "application", "a", application, "The application name to use.")
+	rootCmd.PersistentFlags().StringVarP(&collection, "collection", "c", collection, "The collection name to use.")
+	getCmd.Flags().BoolVarP(&use_base64, "base64", "b", false, "Decode the secret from base64 before printing.")
+	setCmd.Flags().BoolVarP(&use_base64, "base64", "b", false, "Encode the secret as base64 before storing.")
 	rootCmd.AddCommand(setCmd)
 	rootCmd.AddCommand(getCmd)
 	rootCmd.AddCommand(delCmd)

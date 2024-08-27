@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	applicationName       = "Keeper Keyring Utility"
+	StringContentType     = "text/plain; charset=utf8"
 	completedSignal       = "org.freedesktop.Secret.Prompt.Completed"
 	createItemMethod      = "org.freedesktop.Secret.Collection.CreateItem"
 	defaultCollectionPath = "/org/freedesktop/secrets/aliases/default"
@@ -20,6 +20,7 @@ const (
 	searchItemsMethod     = "org.freedesktop.Secret.Collection.SearchItems"
 	serviceName           = "org.freedesktop.secrets"
 	servicePath           = "/org/freedesktop/secrets"
+	sessionCloseMethod    = "org.freedesktop.Secret.Session.Close"
 	unlockMethod          = "org.freedesktop.Secret.Service.Unlock"
 )
 
@@ -37,10 +38,11 @@ type secretObject struct {
 }
 
 // attributes returns a map of attributes to be attached to the secret.
-func attributes(application string) map[string]string {
+func attributes(application, id string) map[string]string {
 	return map[string]string{
-		"Agent":       "keeper-keyring-utility",
+		"Agent":       "kkru (Keeper Keyring Utility)",
 		"Application": application,
+		"Id":          id,
 	}
 }
 
@@ -73,7 +75,7 @@ func Open(conn *dbus.Conn) (dbus.ObjectPath, error) {
 
 // Close closes the session with the secret service.
 func Close(conn *dbus.Conn, session dbus.ObjectPath) error {
-	return busObject(conn, session).Call("org.freedesktop.Secret.Session.Close", 0).Err
+	return busObject(conn, session).Call(sessionCloseMethod, 0).Err
 }
 
 // Unlock unlocks the given objects.
@@ -113,20 +115,27 @@ func Unlock(conn *dbus.Conn, objects []dbus.ObjectPath) ([]dbus.ObjectPath, erro
 	return unlocked, nil
 }
 
-// CreateItem creates a new item in the given collection with the given secret.
-func CreateItem(conn *dbus.Conn, collection dbus.ObjectPath, session dbus.ObjectPath, applicationName string,
-	secretLabel string, secretData []byte) (
+// SetItem creates a new item (or overwrites an existing one) in the given collection with the given secret.
+func SetItem(conn *dbus.Conn, collection dbus.ObjectPath, session dbus.ObjectPath, applicationName string,
+	secretLabel string, secretData []byte, encoding string) (
 	dbus.BusObject, error) {
 	var item, prompt dbus.ObjectPath
+	var replace bool
 
+	// The D-Bus Secrets API will delete something else when replace is true but the item does not exist(!!).
+	if _, err := GetItem(conn, collection, session, applicationName, secretLabel); err == nil {
+		replace = true
+	} else {
+		replace = false
+	}
 	if err := busObject(conn, collection).Call(createItemMethod, 0, map[string]dbus.Variant{
 		itemLabelVariant:      dbus.MakeVariant(secretLabel),
-		itemAttributesVariant: dbus.MakeVariant(attributes(applicationName)),
+		itemAttributesVariant: dbus.MakeVariant(attributes(applicationName, secretLabel)),
 	}, dbusSecretObject{
 		Session:     session,
 		Value:       secretData,
-		ContentType: "text/plain; charset=utf8",
-	}, true).Store(&item, &prompt); err != nil {
+		ContentType: encoding,
+	}, replace).Store(&item, &prompt); err != nil {
 		return nil, err
 	} else if prompt != dbus.ObjectPath("/") {
 		return nil, nil
@@ -147,7 +156,7 @@ func DeleteItem(conn *dbus.Conn, item dbus.BusObject) error {
 func GetItem(conn *dbus.Conn, collection dbus.ObjectPath, session dbus.ObjectPath, applicationName string, label string) (*secretObject, error) {
 	var items []dbus.ObjectPath
 
-	if err := busObject(conn, collection).Call(searchItemsMethod, 0, attributes(applicationName)).Store(&items); err == nil {
+	if err := busObject(conn, collection).Call(searchItemsMethod, 0, attributes(applicationName, label)).Store(&items); err == nil {
 		if len(items) == 1 {
 			var dbusSecret dbusSecretObject
 			item := busObject(conn, items[0])
