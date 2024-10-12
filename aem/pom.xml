@@ -50,7 +50,7 @@
     <crx.port>4502</crx.port>
     <crx.path>/apps/aio/install</crx.path>
 
-    <aemaacs.version>2021.11.6013.20211105T162756Z-211000</aemaacs.version>
+    <aemaacs.version>2024.10.18175.20241010T124406Z-240900</aemaacs.version>
 
     <!--
 If you want to deploy the bundle from the source
