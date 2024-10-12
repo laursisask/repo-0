@@ -249,7 +249,7 @@ jobs:
     - continue-on-error: true
       uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
     - continue-on-error: true
-      uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
+      uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3
       with:
         cache: pip
         cache-dependency-path: requirements/*.txt
