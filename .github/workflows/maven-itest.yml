@@ -250,7 +250,7 @@ jobs:
       uses: actions/checkout@v3
     - continue-on-error: true
       name: Setup JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         cache: maven
         distribution: temurin
@@ -531,7 +531,7 @@ jobs:
       uses: actions/checkout@v3
     - continue-on-error: true
       name: Setup JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         cache: maven
         distribution: temurin
@@ -812,7 +812,7 @@ jobs:
       uses: actions/checkout@v3
     - continue-on-error: true
       name: Setup JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         cache: maven
         distribution: temurin
