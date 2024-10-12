@@ -274,7 +274,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       name: Commit and push files
-      uses: planetscale/ghcommit-action@21a8cda29f55e5cc2cdae0cdbdd08e38dd148c25
+      uses: planetscale/ghcommit-action@d4176bfacef926cc2db351eab20398dfc2f593b5
       with:
         branch: snapshot
         commit_message: Sync with push-gha-metrics-action-source@main
