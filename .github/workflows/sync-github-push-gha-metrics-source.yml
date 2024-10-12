@@ -551,7 +551,7 @@ jobs:
       run: ./sync-from-source/sync.sh
     - continue-on-error: true
       name: Open PR
-      uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e
+      uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f
       with:
         branch: chore/update-push-gha-metrics-action
         commit-message: Update push-gha-metrics-action
