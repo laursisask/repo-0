@@ -256,7 +256,7 @@ jobs:
         go-version-file: go.mod
     - continue-on-error: true
       name: goreleaser check
-      uses: goreleaser/goreleaser-action@v4
+      uses: goreleaser/goreleaser-action@v6
       with:
         args: check
         version: latest
