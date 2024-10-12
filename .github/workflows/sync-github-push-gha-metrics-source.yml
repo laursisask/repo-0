@@ -253,7 +253,7 @@ jobs:
     - continue-on-error: true
       id: collect-gha-metrics
       name: Collect Metrics
-      uses: smartcontractkit/push-gha-metrics-action@dea9b546553cb4ca936607c2267a09c004e4ab3f
+      uses: smartcontractkit/push-gha-metrics-action@d9da21a2747016b3e13de58c7d4115a3d5c97935
       with:
         basic-auth: ${{ secrets.GRAFANA_INTERNAL_BASIC_AUTH }}
         hostname: ${{ secrets.GRAFANA_INTERNAL_HOST }}
@@ -534,7 +534,7 @@ jobs:
     - continue-on-error: true
       id: collect-gha-metrics
       name: Collect Metrics
-      uses: smartcontractkit/push-gha-metrics-action@dea9b546553cb4ca936607c2267a09c004e4ab3f
+      uses: smartcontractkit/push-gha-metrics-action@d9da21a2747016b3e13de58c7d4115a3d5c97935
       with:
         basic-auth: ${{ secrets.GRAFANA_INTERNAL_BASIC_AUTH }}
         hostname: ${{ secrets.GRAFANA_INTERNAL_HOST }}
