@@ -259,7 +259,7 @@ jobs:
         go-version-file: go.mod
     - continue-on-error: true
       name: Install Cosign
-      uses: sigstore/cosign-installer@v3.6.0
+      uses: sigstore/cosign-installer@v3.7.0
       with:
         cosign-release: v2.2.3
     - continue-on-error: true
