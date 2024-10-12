@@ -780,13 +780,13 @@ jobs:
     - continue-on-error: true
       uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
     - continue-on-error: true
-      uses: pypa/gh-action-pypi-publish@c7f29f7adef1a245bd91520e94867e5c6eedddcc
+      uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597
       with:
         packages_dir: artifact/
         password: ${{ secrets.TEST_PYPI_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
     - continue-on-error: true
-      uses: pypa/gh-action-pypi-publish@c7f29f7adef1a245bd91520e94867e5c6eedddcc
+      uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597
       with:
         packages_dir: artifact/
         password: ${{ secrets.PYPI_TOKEN }}
