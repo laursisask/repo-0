@@ -265,7 +265,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
       name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@5fdedb94abba051217030cc86d4523cf3f02243d
+      uses: goreleaser/goreleaser-action@286f3b13b1b49da4ac219696163fb8c1c93e1200
       with:
         args: release --clean
     - name: after
