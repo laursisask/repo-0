@@ -1749,12 +1749,12 @@
         },
         "types-setuptools": {
             "hashes": [
-                "sha256:0abdb082552ca966c1e5fc244e4853adc62971f6cd724fb1d8a3713b580e5a65",
-                "sha256:15b38c8e63ca34f42f6063ff4b1dd662ea20086166d5ad6a102e670a52574120"
+                "sha256:29b0560a8d4b4a91174be085847002c69abfcb048e20b33fc663005aedf56804",
+                "sha256:caab58366741fb99673d0138b6e2d760717f154cfb981b74fea5e8de40f0b703"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==74.1.0.20240907"
+            "version": "==75.1.0.20241014"
         },
         "typing-extensions": {
             "hashes": [
