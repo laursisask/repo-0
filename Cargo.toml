@@ -61,7 +61,7 @@ hermes-sovereign-rollup-components = { version = "0.1.0" }
 hermes-sovereign-test-components   = { version = "0.1.0" }
 
 bech32              = { version = "0.9.1" }
-borsh               = { version = "0.10.3" }
+borsh               = { version = "0.10.4" }
 cgp-core            = { version = "0.1.0" }
 cgp-error-eyre      = { version = "0.1.0" }
 ed25519-dalek       = { version = "2.1.1" }
