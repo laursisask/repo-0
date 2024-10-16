@@ -238,7 +238,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-eslint/eslint-plugin-template@npm:14.4.0, @angular-eslint/eslint-plugin-template@npm:^14.0.2":
+"@angular-eslint/bundled-angular-compiler@npm:18.3.1":
+  version: 18.3.1
+  resolution: "@angular-eslint/bundled-angular-compiler@npm:18.3.1"
+  checksum: 8c3e76cee2c0fccd35daac3bd126816421c9bc0390c03f2c956e91ab64ec75ad97488a14eabd8ca3e61411db96a1dee17800b4d105f74938e4e577ff5e3b4457
+  languageName: node
+  linkType: hard
+
+"@angular-eslint/eslint-plugin-template@npm:18.3.1":
+  version: 18.3.1
+  resolution: "@angular-eslint/eslint-plugin-template@npm:18.3.1"
+  dependencies:
+    "@angular-eslint/bundled-angular-compiler": 18.3.1
+    "@angular-eslint/utils": 18.3.1
+    aria-query: 5.3.0
+    axobject-query: 4.1.0
+  peerDependencies:
+    "@typescript-eslint/utils": ^7.11.0 || ^8.0.0
+    eslint: ^8.57.0 || ^9.0.0
+    typescript: "*"
+  checksum: da232e37869a67dbd30f8f4676fcfb708d7d64d2dec06328ccbaa06031ef8319d24075388ba8785dd33b654e60c0a59f004a5fa6d3ccc82156b8c6c585d7390c
+  languageName: node
+  linkType: hard
+
+"@angular-eslint/eslint-plugin-template@npm:^14.0.2":
   version: 14.4.0
   resolution: "@angular-eslint/eslint-plugin-template@npm:14.4.0"
   dependencies:
@@ -255,7 +278,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-eslint/eslint-plugin@npm:14.4.0, @angular-eslint/eslint-plugin@npm:^14.0.2":
+"@angular-eslint/eslint-plugin@npm:18.3.1":
+  version: 18.3.1
+  resolution: "@angular-eslint/eslint-plugin@npm:18.3.1"
+  dependencies:
+    "@angular-eslint/bundled-angular-compiler": 18.3.1
+    "@angular-eslint/utils": 18.3.1
+  peerDependencies:
+    "@typescript-eslint/utils": ^7.11.0 || ^8.0.0
+    eslint: ^8.57.0 || ^9.0.0
+    typescript: "*"
+  checksum: 0e6ceeb7cee43b0764796cce1d0d7ddf0cdaf747f3e517e0e4266ed9f834bb9881ebeb9f3fe703018f28ed433e8c886ea1cb734ac199abff1255a01e92fbb744
+  languageName: node
+  linkType: hard
+
+"@angular-eslint/eslint-plugin@npm:^14.0.2":
   version: 14.4.0
   resolution: "@angular-eslint/eslint-plugin@npm:14.4.0"
   dependencies:
@@ -268,18 +305,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular-eslint/schematics@npm:^14.0.2":
-  version: 14.4.0
-  resolution: "@angular-eslint/schematics@npm:14.4.0"
+"@angular-eslint/schematics@npm:^18.3.1":
+  version: 18.3.1
+  resolution: "@angular-eslint/schematics@npm:18.3.1"
   dependencies:
-    "@angular-eslint/eslint-plugin": 14.4.0
-    "@angular-eslint/eslint-plugin-template": 14.4.0
-    ignore: 5.2.0
+    "@angular-eslint/eslint-plugin": 18.3.1
+    "@angular-eslint/eslint-plugin-template": 18.3.1
+    ignore: 5.3.2
+    semver: 7.6.3
     strip-json-comments: 3.1.1
-    tmp: 0.2.1
   peerDependencies:
-    "@angular/cli": ">= 14.0.0 < 15.0.0"
-  checksum: 5bbfd3dd31ff83690c3a8fc69c661ef001fa0af9806b1a1b89fe1d1288ca9c59fe09023c7ef329ef9aacfdb0e6b5e0259e0a59d5195b03f3b1152861da8fb273
+    "@angular-devkit/core": ">= 18.0.0 < 19.0.0"
+    "@angular-devkit/schematics": ">= 18.0.0 < 19.0.0"
+  checksum: 35b94d65962c94306d1efbb2e66238fb8901225be3893767b2807e06c0b15093aa762d73f51279683829f5c6db84a3f31a7438b10dc149a362734683abd4b72d
   languageName: node
   linkType: hard
 
@@ -306,6 +344,19 @@ __metadata:
     eslint: ^7.0.0 || ^8.0.0
     typescript: "*"
   checksum: 9ce6e983887f6dbfcfca317524fff642e2cf56de52ec0f534dd613adba84e1eb6e59b68da401379222fb108fe03f3b49d3b9c46e26f25b5c96d89203e5d266f8
+  languageName: node
+  linkType: hard
+
+"@angular-eslint/utils@npm:18.3.1":
+  version: 18.3.1
+  resolution: "@angular-eslint/utils@npm:18.3.1"
+  dependencies:
+    "@angular-eslint/bundled-angular-compiler": 18.3.1
+  peerDependencies:
+    "@typescript-eslint/utils": ^7.11.0 || ^8.0.0
+    eslint: ^8.57.0 || ^9.0.0
+    typescript: "*"
+  checksum: dd43fa5f1d7947a4dc658c097e4cb858b8fed6e4b305f897c93e1b1814d673258ed9c85574b3616f376a56490fb170c4bde8201a9bb74c6af9f862db382f5ac8
   languageName: node
   linkType: hard
 
@@ -9929,7 +9980,7 @@ __metadata:
     "@angular-eslint/builder": ^14.0.2
     "@angular-eslint/eslint-plugin": ^14.0.2
     "@angular-eslint/eslint-plugin-template": ^14.0.2
-    "@angular-eslint/schematics": ^14.0.2
+    "@angular-eslint/schematics": ^18.3.1
     "@angular-eslint/template-parser": ^14.0.2
     "@angular/animations": ^14.1.0
     "@angular/cli": ~14.2.0
@@ -12249,6 +12300,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aria-query@npm:5.3.0":
+  version: 5.3.0
+  resolution: "aria-query@npm:5.3.0"
+  dependencies:
+    dequal: ^2.0.3
+  checksum: 305bd73c76756117b59aba121d08f413c7ff5e80fa1b98e217a3443fcddb9a232ee790e24e432b59ae7625aebcf4c47cb01c2cac872994f0b426f5bdfcd96ba9
+  languageName: node
+  linkType: hard
+
 "aria-query@npm:^5.0.0":
   version: 5.0.2
   resolution: "aria-query@npm:5.0.2"
@@ -12758,6 +12818,13 @@ __metadata:
   dependencies:
     deep-equal: ^2.0.5
   checksum: c12a5da10dc7bab75e1cda9b6a3b5fcf10eba426ddf1a17b71ef65a434ed707ede7d1c4f013ba1609e970bc8c0cddac01365080d376204314e9b294719acd8a5
+  languageName: node
+  linkType: hard
+
+"axobject-query@npm:4.1.0":
+  version: 4.1.0
+  resolution: "axobject-query@npm:4.1.0"
+  checksum: 7d1e87bf0aa7ae7a76cd39ab627b7c48fda3dc40181303d9adce4ba1d5b5ce73b5e5403ee6626ec8e91090448c887294d6144e24b6741a976f5be9347e3ae1df
   languageName: node
   linkType: hard
 
@@ -16110,7 +16177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dequal@npm:^2.0.0":
+"dequal@npm:^2.0.0, dequal@npm:^2.0.3":
   version: 2.0.3
   resolution: "dequal@npm:2.0.3"
   checksum: 8679b850e1a3d0ebbc46ee780d5df7b478c23f335887464023a631d1b9af051ad4a6595a44220f9ff8ff95a8ddccf019b5ad778a976fd7bbf77383d36f412f90
@@ -19696,7 +19763,7 @@ __metadata:
 
 "fsevents@patch:fsevents@^1.2.7#~builtin<compat/fsevents>":
   version: 1.2.13
-  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#~builtin<compat/fsevents>::version=1.2.13&hash=d11327"
+  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#~builtin<compat/fsevents>::version=1.2.13&hash=18f3a7"
   dependencies:
     bindings: ^1.5.0
     nan: ^2.12.1
@@ -19706,7 +19773,7 @@ __metadata:
 
 "fsevents@patch:fsevents@^2.1.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@^2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -21092,10 +21159,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ignore@npm:5.2.0, ignore@npm:^5.0.0, ignore@npm:^5.1.1, ignore@npm:^5.1.4, ignore@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "ignore@npm:5.2.0"
-  checksum: 6b1f926792d614f64c6c83da3a1f9c83f6196c2839aa41e1e32dd7b8d174cef2e329d75caabb62cb61ce9dc432f75e67d07d122a037312db7caa73166a1bdb77
+"ignore@npm:5.3.2":
+  version: 5.3.2
+  resolution: "ignore@npm:5.3.2"
+  checksum: 2acfd32a573260ea522ea0bfeff880af426d68f6831f973129e2ba7363f422923cf53aab62f8369cbf4667c7b25b6f8a3761b34ecdb284ea18e87a5262a865be
   languageName: node
   linkType: hard
 
@@ -21103,6 +21170,13 @@ __metadata:
   version: 4.0.6
   resolution: "ignore@npm:4.0.6"
   checksum: 248f82e50a430906f9ee7f35e1158e3ec4c3971451dd9f99c9bc1548261b4db2b99709f60ac6c6cac9333494384176cc4cc9b07acbe42d52ac6a09cad734d800
+  languageName: node
+  linkType: hard
+
+"ignore@npm:^5.0.0, ignore@npm:^5.1.1, ignore@npm:^5.1.4, ignore@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "ignore@npm:5.2.0"
+  checksum: 6b1f926792d614f64c6c83da3a1f9c83f6196c2839aa41e1e32dd7b8d174cef2e329d75caabb62cb61ce9dc432f75e67d07d122a037312db7caa73166a1bdb77
   languageName: node
   linkType: hard
 
@@ -29393,7 +29467,7 @@ __metadata:
 
 "pre-commit@patch:pre-commit@npm:1.2.2#.yarn/patches/pre-commit-npm-1.2.2-f30af83877.patch::locator=%40uppy-dev%2Fbuild%40workspace%3A.":
   version: 1.2.2
-  resolution: "pre-commit@patch:pre-commit@npm%3A1.2.2#.yarn/patches/pre-commit-npm-1.2.2-f30af83877.patch::version=1.2.2&hash=41c00a&locator=%40uppy-dev%2Fbuild%40workspace%3A."
+  resolution: "pre-commit@patch:pre-commit@npm%3A1.2.2#.yarn/patches/pre-commit-npm-1.2.2-f30af83877.patch::version=1.2.2&hash=b54a30&locator=%40uppy-dev%2Fbuild%40workspace%3A."
   dependencies:
     cross-spawn: ^5.0.1
     spawn-sync: ^1.0.15
@@ -29422,7 +29496,7 @@ __metadata:
 
 "preact@patch:preact@npm:10.10.0#.yarn/patches/preact-npm-10.10.0-dd04de05e8.patch::locator=%40uppy-dev%2Fbuild%40workspace%3A.":
   version: 10.10.0
-  resolution: "preact@patch:preact@npm%3A10.10.0#.yarn/patches/preact-npm-10.10.0-dd04de05e8.patch::version=10.10.0&hash=513c63&locator=%40uppy-dev%2Fbuild%40workspace%3A."
+  resolution: "preact@patch:preact@npm%3A10.10.0#.yarn/patches/preact-npm-10.10.0-dd04de05e8.patch::version=10.10.0&hash=e9860f&locator=%40uppy-dev%2Fbuild%40workspace%3A."
   checksum: 8fefec89ac68b5bd8fc0c4f1672beb7585c878663f9e929de85ff0f5c6d12dc49d9910867d7c9ef2bc449ec09512241574e08cb0546bdb3a34600891db5e0a96
   languageName: node
   linkType: hard
@@ -31214,14 +31288,14 @@ __metadata:
 
 "resolve@patch:resolve@1.1.7#~builtin<compat/resolve>":
   version: 1.1.7
-  resolution: "resolve@patch:resolve@npm%3A1.1.7#~builtin<compat/resolve>::version=1.1.7&hash=3bafbf"
+  resolution: "resolve@patch:resolve@npm%3A1.1.7#~builtin<compat/resolve>::version=1.1.7&hash=07638b"
   checksum: e9dbca78600ae56835c43a09f1276876c883e4b4bbd43e2683fa140671519d2bdebeb1c1576ca87c8c508ae2987b3ec481645ac5d3054b0f23254cfc1ce49942
   languageName: node
   linkType: hard
 
 "resolve@patch:resolve@1.22.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.1.5#~builtin<compat/resolve>, resolve@patch:resolve@^1.1.6#~builtin<compat/resolve>, resolve@patch:resolve@^1.1.7#~builtin<compat/resolve>, resolve@patch:resolve@^1.10.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.10.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.13.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.17.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.19.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.20.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.3.2#~builtin<compat/resolve>":
   version: 1.22.1
-  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=07638b"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -31234,7 +31308,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.4#~builtin<compat/resolve>":
   version: 2.0.0-next.4
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4#~builtin<compat/resolve>::version=2.0.0-next.4&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4#~builtin<compat/resolve>::version=2.0.0-next.4&hash=07638b"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -31975,6 +32049,15 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 9d58db16525e9f749ad0a696a1f27deabaa51f66e91d2fa2b0db3de3e9644e8677de3b7d7a03f4c15bc81521e0c3916d7369e0572dbde250d9bedf5194e2a8a7
+  languageName: node
+  linkType: hard
+
+"semver@npm:7.6.3":
+  version: 7.6.3
+  resolution: "semver@npm:7.6.3"
+  bin:
+    semver: bin/semver.js
+  checksum: 4110ec5d015c9438f322257b1c51fe30276e5f766a3f64c09edd1d7ea7118ecbc3f379f3b69032bacf13116dc7abc4ad8ce0d7e2bd642e26b0d271b56b61a7d8
   languageName: node
   linkType: hard
 
@@ -32915,7 +32998,7 @@ __metadata:
 
 "start-server-and-test@patch:start-server-and-test@npm:1.14.0#.yarn/patches/start-server-and-test-npm-1.14.0-841aa34fdf.patch::locator=%40uppy-dev%2Fbuild%40workspace%3A.":
   version: 1.14.0
-  resolution: "start-server-and-test@patch:start-server-and-test@npm%3A1.14.0#.yarn/patches/start-server-and-test-npm-1.14.0-841aa34fdf.patch::version=1.14.0&hash=1ef69f&locator=%40uppy-dev%2Fbuild%40workspace%3A."
+  resolution: "start-server-and-test@patch:start-server-and-test@npm%3A1.14.0#.yarn/patches/start-server-and-test-npm-1.14.0-841aa34fdf.patch::version=1.14.0&hash=2add03&locator=%40uppy-dev%2Fbuild%40workspace%3A."
   dependencies:
     bluebird: 3.7.2
     check-more-types: 2.24.0
@@ -34183,21 +34266,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tmp@npm:0.2.1, tmp@npm:^0.2.1, tmp@npm:~0.2.1":
-  version: 0.2.1
-  resolution: "tmp@npm:0.2.1"
-  dependencies:
-    rimraf: ^3.0.0
-  checksum: 8b1214654182575124498c87ca986ac53dc76ff36e8f0e0b67139a8d221eaecfdec108c0e6ec54d76f49f1f72ab9325500b246f562b926f85bcdfca8bf35df9e
-  languageName: node
-  linkType: hard
-
 "tmp@npm:^0.0.33":
   version: 0.0.33
   resolution: "tmp@npm:0.0.33"
   dependencies:
     os-tmpdir: ~1.0.2
   checksum: 902d7aceb74453ea02abbf58c203f4a8fc1cead89b60b31e354f74ed5b3fb09ea817f94fb310f884a5d16987dd9fa5a735412a7c2dd088dd3d415aa819ae3a28
+  languageName: node
+  linkType: hard
+
+"tmp@npm:^0.2.1, tmp@npm:~0.2.1":
+  version: 0.2.1
+  resolution: "tmp@npm:0.2.1"
+  dependencies:
+    rimraf: ^3.0.0
+  checksum: 8b1214654182575124498c87ca986ac53dc76ff36e8f0e0b67139a8d221eaecfdec108c0e6ec54d76f49f1f72ab9325500b246f562b926f85bcdfca8bf35df9e
   languageName: node
   linkType: hard
 
@@ -34703,11 +34786,11 @@ __metadata:
 
 "typescript@patch:typescript@*#~builtin<compat/typescript>, typescript@patch:typescript@^4.0.3#~builtin<compat/typescript>, typescript@patch:typescript@~4.8#~builtin<compat/typescript>":
   version: 4.8.2
-  resolution: "typescript@patch:typescript@npm%3A4.8.2#~builtin<compat/typescript>::version=4.8.2&hash=3b564f"
+  resolution: "typescript@patch:typescript@npm%3A4.8.2#~builtin<compat/typescript>::version=4.8.2&hash=f456af"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 28e130a49d9330b64b8229ad336247bf980e9a705c5850f30a859a68c051e8e68e367b3275f119da4a825dca71ad0fe315964a1315d4a381c0021bca5eeeb62e
+  checksum: 6f49363af8af2fe480da1d5fa68712644438785208b06690a3cbe5e7365fd652c3a0f1e587bc8684d78fb69de3dde4de185c0bad7bb4f3664ddfc813ce8caad6
   languageName: node
   linkType: hard
 
@@ -36057,7 +36140,7 @@ __metadata:
 
 "webdav@patch:webdav@npm%3A5.2.2#./.yarn/patches/webdav-npm-5.2.2-791e72c3de.patch::locator=%40uppy-dev%2Fbuild%40workspace%3A.":
   version: 5.2.2
-  resolution: "webdav@patch:webdav@npm%3A5.2.2#./.yarn/patches/webdav-npm-5.2.2-791e72c3de.patch::version=5.2.2&hash=b1e9cf&locator=%40uppy-dev%2Fbuild%40workspace%3A."
+  resolution: "webdav@patch:webdav@npm%3A5.2.2#./.yarn/patches/webdav-npm-5.2.2-791e72c3de.patch::version=5.2.2&hash=e7d290&locator=%40uppy-dev%2Fbuild%40workspace%3A."
   dependencies:
     "@buttercup/fetch": ^0.1.1
     base-64: ^1.0.0
