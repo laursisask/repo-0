@@ -254,15 +254,15 @@ jobs:
       uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
     - continue-on-error: true
       name: Initialize CodeQL
-      uses: github/codeql-action/init@46ed16ded91731b2df79a2893d3aea8e9f03b5c4
+      uses: github/codeql-action/init@f779452ac5af1c261dce0346a8f964149f49322b
       with:
         languages: ${{ matrix.language }}
     - continue-on-error: true
       name: Autobuild
-      uses: github/codeql-action/autobuild@46ed16ded91731b2df79a2893d3aea8e9f03b5c4
+      uses: github/codeql-action/autobuild@f779452ac5af1c261dce0346a8f964149f49322b
     - continue-on-error: true
       name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@46ed16ded91731b2df79a2893d3aea8e9f03b5c4
+      uses: github/codeql-action/analyze@f779452ac5af1c261dce0346a8f964149f49322b
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/grafana/etcd.$(date
         +%s)
