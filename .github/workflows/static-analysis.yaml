@@ -261,7 +261,7 @@ jobs:
         version: v1.49.0
     - continue-on-error: true
       name: protoc
-      uses: arduino/setup-protoc@149f6c87b92550901b26acd1632e11c3662e381f
+      uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         version: 3.14.0
