@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20240919203636-12af5e8a671f
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.3
 	github.com/grafana/sobek v0.0.0-20240829081756-447e8c611945
 	github.com/mailru/easyjson v0.7.7
 	github.com/mccutchen/go-httpbin v1.1.2-0.20190116014521-c5cb2f4802fa
