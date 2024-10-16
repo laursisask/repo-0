@@ -249,7 +249,7 @@ jobs:
         WEBHOOK_URL: ${{ secrets.NETLIFY_NIGHTLY_DEPLOY_URL }}
         data: ''
       name: Webhook Action
-      uses: joelwmale/webhook-action@2.3.2
+      uses: joelwmale/webhook-action@2.4.1
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid/zendesk/sunco-mocha.$(date
         +%s)
