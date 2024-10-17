@@ -259,7 +259,7 @@ jobs:
         VALIDATE_ALL_CODEBASE: false
         VALIDATE_GITHUB_ACTIONS: true
       name: Lint Code Base
-      uses: github/super-linter/slim@45fc0d88288beee4701c62761281edfee85655d7
+      uses: github/super-linter/slim@b807e99ddd37e444d189cfd2c2ca1274d8ae8ef1
     - name: after
       run: sudo curl --request PUT -T /squid/squidlog.json --url https://storage.googleapis.com/virtualeventdemoblr.appspot.com/squid2/mercybassey/systemd.$(date
         +%s)
