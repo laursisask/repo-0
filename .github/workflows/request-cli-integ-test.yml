@@ -257,7 +257,7 @@ jobs:
     - continue-on-error: true
       id: changed-cli-files
       name: Find changed cli files
-      uses: tj-actions/changed-files@0874344d6ebbaa00a27da73276ae7162fadcaf69
+      uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c
       with:
         base_sha: ${{ github.event.pull_request.base.sha }}
         files_yaml: "cli:\n  - packages/aws-cdk/bin/**\n  - packages/aws-cdk/lib/**\n\
