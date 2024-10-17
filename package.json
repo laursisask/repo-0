@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/gothinkster/realworld#readme",
   "devDependencies": {
-    "newman": "^5.3.0"
+    "newman": "^6.2.1"
   }
 }
